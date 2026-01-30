@@ -6,10 +6,10 @@ import {
   Award, 
   AlertTriangle,
   GraduationCap,
-  ArrowLeft,
   Wifi,
   Gauge
 } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { 
   getEscolas, 
@@ -114,10 +114,7 @@ export default function EscolasDashboard() {
               />
             </div>
             
-            <Button variant="outline" size="sm" className="gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Voltar
-            </Button>
+            <ThemeToggle />
           </div>
           
           {/* Mobile Search */}
