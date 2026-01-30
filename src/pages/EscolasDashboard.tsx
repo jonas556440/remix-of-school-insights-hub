@@ -6,6 +6,7 @@ import {
   Award, 
   AlertTriangle,
   GraduationCap,
+  ArrowLeft,
   Wifi,
   Gauge
 } from "lucide-react";
@@ -114,7 +115,13 @@ export default function EscolasDashboard() {
               />
             </div>
             
-            <ThemeToggle />
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <Button variant="outline" size="sm" className="gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Voltar
+              </Button>
+            </div>
           </div>
           
           {/* Mobile Search */}
