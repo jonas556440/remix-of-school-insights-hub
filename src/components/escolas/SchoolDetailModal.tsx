@@ -89,8 +89,26 @@ export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalPr
               <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
                 <Building2 className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
+                  <p className="text-sm font-medium text-muted-foreground">GRE</p>
+                  <p className="font-semibold">{escola.gre}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
+                <Building2 className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
                   <p className="text-sm font-medium text-muted-foreground">Código Município</p>
                   <p className="font-semibold font-mono">{escola.cod_municipio}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
+                <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Matrículas (maior turno)</p>
+                  <p className="font-semibold">{escola.matriculas_maior_turno} alunos</p>
                 </div>
               </div>
             </div>
