@@ -143,24 +143,28 @@ export default function EscolasDashboard() {
               value={kpis.total}
               icon={School}
               variant="primary"
+              tooltip="Total de unidades escolares públicas (estaduais, municipais e federais) cadastradas no censo escolar do Piauí."
             />
             <KPICard
               title="Estaduais"
               value={kpis.estaduais}
               subtitle={`${((kpis.estaduais / kpis.total) * 100).toFixed(0)}% do total`}
               icon={Building2}
+              tooltip="Escolas mantidas pelo Governo do Estado do Piauí, sob gestão da SEDUC-PI."
             />
             <KPICard
               title="Municipais"
               value={kpis.municipais}
               subtitle={`${((kpis.municipais / kpis.total) * 100).toFixed(0)}% do total`}
               icon={Users}
+              tooltip="Escolas mantidas pelas prefeituras municipais, sob gestão das secretarias municipais de educação."
             />
             <KPICard
               title="Federais"
               value={kpis.federais}
               subtitle={`${((kpis.federais / kpis.total) * 100).toFixed(0)}% do total`}
               icon={GraduationCap}
+              tooltip="Institutos Federais, Colégios de Aplicação e outras unidades vinculadas ao MEC."
             />
             <KPICard
               title="INEC 5 (Excelente)"
@@ -168,6 +172,7 @@ export default function EscolasDashboard() {
               subtitle={`${((kpis.inec_5 / kpis.total) * 100).toFixed(0)}% do total`}
               icon={Award}
               variant="success"
+              tooltip="Escolas com nível máximo de conectividade: Wi-Fi adequado (1 AP a cada 2 ambientes) e velocidade de internet ≥ 1 Mbps por aluno."
             />
             <KPICard
               title="Críticas (INEC ≤2)"
@@ -175,6 +180,7 @@ export default function EscolasDashboard() {
               subtitle={`${((kpis.inec_critico / kpis.total) * 100).toFixed(0)}% do total`}
               icon={AlertTriangle}
               variant="danger"
+              tooltip="Escolas em situação crítica: sem internet adequada, déficit de Access Points ou velocidade insuficiente para o número de alunos."
             />
           </div>
         </section>
@@ -241,6 +247,7 @@ export default function EscolasDashboard() {
               subtitle={`${((kpis.escolas_com_deficit / kpis.total) * 100).toFixed(0)}% precisam de mais APs`}
               icon={Wifi}
               variant="danger"
+              tooltip="Escolas que possuem menos Access Points instalados do que o mínimo recomendado (1 AP a cada 2 ambientes escolares)."
             />
             <KPICard
               title="Total Déficit APs"
@@ -248,6 +255,7 @@ export default function EscolasDashboard() {
               subtitle={`${kpis.total_aps_atual.toLocaleString('pt-BR')} instalados de ${kpis.total_aps_necessarios.toLocaleString('pt-BR')} necessários`}
               icon={Wifi}
               variant="primary"
+              tooltip="Quantidade total de Access Points que precisam ser adquiridos e instalados para atender à meta de 1 AP a cada 2 ambientes."
             />
             <KPICard
               title="Velocidade Adequada"
@@ -255,12 +263,14 @@ export default function EscolasDashboard() {
               subtitle={`${((kpis.escolas_velocidade_ok / kpis.total) * 100).toFixed(0)}% atendem requisito`}
               icon={Gauge}
               variant="success"
+              tooltip="Escolas com velocidade de internet ≥ 1 Mbps por aluno no maior turno (mínimo de 50 Mbps), conforme Nota Técnica MEC nº 182/2025."
             />
             <KPICard
               title="Velocidade Insuficiente"
               value={kpis.escolas_velocidade_baixa}
               subtitle={`${((kpis.escolas_velocidade_baixa / kpis.total) * 100).toFixed(0)}% abaixo do mínimo`}
               icon={Gauge}
+              tooltip="Escolas cuja velocidade contratada está abaixo do mínimo necessário para atender adequadamente os alunos."
             />
           </div>
         </section>
