@@ -14,6 +14,14 @@ export interface Escola {
   diligencia: string;
   inec: string;
   inec_nivel: number;
+  // Campos de Wi-Fi/APs conforme Nota Técnica MEC nº 182/2025
+  compartimentos: number;        // Total de ambientes escolares
+  aps_atual: number;             // Access Points instalados atualmente
+  aps_necessarios: number;       // 1 AP a cada 2 compartimentos (mínimo)
+  deficit_aps: number;           // aps_necessarios - aps_atual
+  matriculas_maior_turno: number; // Para cálculo de velocidade mínima (1 Mbps/aluno)
+  velocidade_contratada: number; // Mbps contratados
+  velocidade_minima: number;     // 1 Mbps * alunos, mínimo 50 Mbps
 }
 
 export interface KPIs {
@@ -198,6 +206,38 @@ function gerarEscolas(): Escola[] {
       // Correlação: escolas com INEC alto tendem a ter melhor infraestrutura
       const fatorQualidade = inec.nivel / 5;
       
+      // Gerar dados de compartimentos e APs (Nota Técnica MEC nº 182/2025)
+      const compartimentos = Math.floor(Math.random() * 20) + 5; // 5 a 25 ambientes
+      const aps_necessarios = Math.ceil(compartimentos / 2); // 1 AP a cada 2 ambientes
+      
+      // Correlacionar APs atuais com nível INEC
+      let aps_atual: number;
+      if (inec.nivel >= 5) {
+        aps_atual = aps_necessarios + Math.floor(Math.random() * 3); // Pode ter mais
+      } else if (inec.nivel === 4) {
+        aps_atual = Math.max(aps_necessarios - Math.floor(Math.random() * 2), Math.floor(aps_necessarios * 0.8));
+      } else if (inec.nivel === 3) {
+        aps_atual = Math.floor(aps_necessarios * (0.4 + Math.random() * 0.3));
+      } else {
+        aps_atual = Math.floor(aps_necessarios * Math.random() * 0.5);
+      }
+      
+      const deficit_aps = Math.max(0, aps_necessarios - aps_atual);
+      
+      // Gerar dados de velocidade (1 Mbps por aluno, mínimo 50 Mbps)
+      const matriculas_maior_turno = Math.floor(Math.random() * 400) + 30; // 30 a 430 alunos
+      const velocidade_minima = Math.max(50, matriculas_maior_turno); // 1 Mbps/aluno, mínimo 50
+      
+      // Correlacionar velocidade contratada com nível INEC
+      let velocidade_contratada: number;
+      if (inec.nivel >= 4) {
+        velocidade_contratada = velocidade_minima + Math.floor(Math.random() * 100);
+      } else if (inec.nivel === 3) {
+        velocidade_contratada = Math.floor(velocidade_minima * (0.6 + Math.random() * 0.4));
+      } else {
+        velocidade_contratada = Math.floor(velocidade_minima * Math.random() * 0.5);
+      }
+      
       const escola: Escola = {
         cod_inep: gerarCodINEP(escolaIndex),
         escola: gerarNomeEscola(dep),
@@ -211,6 +251,14 @@ function gerarEscolas(): Escola[] {
         diligencia: statusDiligencia[Math.floor(Math.random() * statusDiligencia.length)],
         inec: inec.label,
         inec_nivel: inec.nivel,
+        // Campos de Wi-Fi/APs
+        compartimentos,
+        aps_atual,
+        aps_necessarios,
+        deficit_aps,
+        matriculas_maior_turno,
+        velocidade_contratada,
+        velocidade_minima,
       };
       
       escolas.push(escola);
