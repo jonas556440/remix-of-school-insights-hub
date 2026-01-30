@@ -41,6 +41,14 @@ export interface KPIs {
   internet_adequada: number;
   wifi_adequado: number;
   total_municipios: number;
+  // Novos KPIs de conectividade
+  total_compartimentos: number;
+  total_aps_necessarios: number;
+  total_aps_atual: number;
+  total_deficit_aps: number;
+  escolas_com_deficit: number;
+  escolas_velocidade_ok: number;
+  escolas_velocidade_baixa: number;
 }
 
 export interface CardPredefinido {
@@ -351,6 +359,14 @@ export function calcularKPIs(escolas: Escola[]): KPIs {
     internet_adequada: escolas.filter(e => e.internet.toLowerCase().includes('adequada') && !e.internet.toLowerCase().includes('inadequada')).length,
     wifi_adequado: escolas.filter(e => e.wifi.toLowerCase().includes('adequado') && !e.wifi.toLowerCase().includes('insuficiente')).length,
     total_municipios: municipiosUnicos.size,
+    // Novos KPIs de conectividade
+    total_compartimentos: escolas.reduce((sum, e) => sum + e.compartimentos, 0),
+    total_aps_necessarios: escolas.reduce((sum, e) => sum + e.aps_necessarios, 0),
+    total_aps_atual: escolas.reduce((sum, e) => sum + e.aps_atual, 0),
+    total_deficit_aps: escolas.reduce((sum, e) => sum + e.deficit_aps, 0),
+    escolas_com_deficit: escolas.filter(e => e.deficit_aps > 0).length,
+    escolas_velocidade_ok: escolas.filter(e => e.velocidade_contratada >= e.velocidade_minima).length,
+    escolas_velocidade_baixa: escolas.filter(e => e.velocidade_contratada < e.velocidade_minima).length,
   };
 }
 
@@ -482,10 +498,49 @@ export function getChartData(escolas: Escola[]) {
     },
   ];
   
+  // Déficit de APs por GRE (Top 10)
+  const greDeficit: Record<string, { deficit: number; total: number }> = {};
+  escolas.forEach(e => {
+    if (!greDeficit[e.gre]) {
+      greDeficit[e.gre] = { deficit: 0, total: 0 };
+    }
+    greDeficit[e.gre].deficit += e.deficit_aps;
+    greDeficit[e.gre].total += 1;
+  });
+  const deficitPorGRE = Object.entries(greDeficit)
+    .map(([gre, data]) => ({ 
+      name: gre.replace(/^\d+ª GRE - /, ''), 
+      deficit: data.deficit,
+      total: data.total
+    }))
+    .sort((a, b) => b.deficit - a.deficit)
+    .slice(0, 10);
+  
+  // Distribuição de velocidade
+  const velocidadeDistribuicao = [
+    { 
+      name: 'Velocidade Adequada', 
+      value: escolas.filter(e => e.velocidade_contratada >= e.velocidade_minima).length,
+      color: 'hsl(142, 71%, 45%)'
+    },
+    { 
+      name: 'Abaixo do Mínimo', 
+      value: escolas.filter(e => e.velocidade_contratada < e.velocidade_minima && e.velocidade_contratada > 0).length,
+      color: 'hsl(25, 95%, 53%)'
+    },
+    { 
+      name: 'Sem Internet', 
+      value: escolas.filter(e => e.velocidade_contratada === 0).length,
+      color: 'hsl(0, 84%, 60%)'
+    },
+  ];
+  
   return {
     inecDistribution,
     conectividadePorDep,
     topMunicipios,
     infraStatus,
+    deficitPorGRE,
+    velocidadeDistribuicao,
   };
 }
