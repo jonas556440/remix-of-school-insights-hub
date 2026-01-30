@@ -6,7 +6,9 @@ import {
   Award, 
   AlertTriangle,
   GraduationCap,
-  ArrowLeft
+  ArrowLeft,
+  Wifi,
+  Gauge
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -27,6 +29,8 @@ import { INECPieChart } from "@/components/escolas/charts/INECPieChart";
 import { DependencyBarChart } from "@/components/escolas/charts/DependencyBarChart";
 import { MunicipiosChart } from "@/components/escolas/charts/MunicipiosChart";
 import { InfraDonutChart } from "@/components/escolas/charts/InfraDonutChart";
+import { APsDeficitChart } from "@/components/escolas/charts/APsDeficitChart";
+import { VelocidadeChart } from "@/components/escolas/charts/VelocidadeChart";
 
 export default function EscolasDashboard() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -103,7 +107,11 @@ export default function EscolasDashboard() {
             </div>
             
             <div className="hidden md:block flex-1 max-w-md mx-8">
-              <GlobalSearch onSearch={handleSearch} />
+              <GlobalSearch 
+                onSearch={handleSearch} 
+                onSelectSchool={handleRowClick}
+                escolas={allEscolas}
+              />
             </div>
             
             <Button variant="outline" size="sm" className="gap-2">
@@ -114,7 +122,11 @@ export default function EscolasDashboard() {
           
           {/* Mobile Search */}
           <div className="md:hidden mt-4">
-            <GlobalSearch onSearch={handleSearch} />
+            <GlobalSearch 
+              onSearch={handleSearch} 
+              onSelectSchool={handleRowClick}
+              escolas={allEscolas}
+            />
           </div>
         </div>
       </header>
@@ -200,6 +212,56 @@ export default function EscolasDashboard() {
               </h3>
               <InfraDonutChart data={chartData.infraStatus} />
             </div>
+            
+            <div className="bg-card border rounded-2xl p-5">
+              <h3 className="font-semibold text-foreground mb-4 pb-3 border-b">
+                Déficit de Access Points por GRE
+              </h3>
+              <APsDeficitChart data={chartData.deficitPorGRE} />
+            </div>
+            
+            <div className="bg-card border rounded-2xl p-5">
+              <h3 className="font-semibold text-foreground mb-4 pb-3 border-b">
+                Velocidade de Internet
+              </h3>
+              <VelocidadeChart data={chartData.velocidadeDistribuicao} />
+            </div>
+          </div>
+        </section>
+        
+        {/* Novos KPIs de Conectividade */}
+        <section>
+          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            📡 Indicadores de Conectividade
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <KPICard
+              title="Escolas com Déficit AP"
+              value={kpis.escolas_com_deficit}
+              subtitle={`${((kpis.escolas_com_deficit / kpis.total) * 100).toFixed(0)}% precisam de mais APs`}
+              icon={Wifi}
+              variant="danger"
+            />
+            <KPICard
+              title="Total Déficit APs"
+              value={kpis.total_deficit_aps}
+              subtitle={`${kpis.total_aps_atual.toLocaleString('pt-BR')} instalados de ${kpis.total_aps_necessarios.toLocaleString('pt-BR')} necessários`}
+              icon={Wifi}
+              variant="primary"
+            />
+            <KPICard
+              title="Velocidade Adequada"
+              value={kpis.escolas_velocidade_ok}
+              subtitle={`${((kpis.escolas_velocidade_ok / kpis.total) * 100).toFixed(0)}% atendem requisito`}
+              icon={Gauge}
+              variant="success"
+            />
+            <KPICard
+              title="Velocidade Insuficiente"
+              value={kpis.escolas_velocidade_baixa}
+              subtitle={`${((kpis.escolas_velocidade_baixa / kpis.total) * 100).toFixed(0)}% abaixo do mínimo`}
+              icon={Gauge}
+            />
           </div>
         </section>
         
