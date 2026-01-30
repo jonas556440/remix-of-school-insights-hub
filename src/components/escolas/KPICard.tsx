@@ -1,11 +1,18 @@
 import { cn } from "@/lib/utils";
-import { LucideIcon } from "lucide-react";
+import { LucideIcon, Info } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface KPICardProps {
   title: string;
   value: number | string;
   subtitle?: string;
   icon: LucideIcon;
+  tooltip?: string;
   trend?: {
     value: number;
     isPositive: boolean;
@@ -35,6 +42,7 @@ export function KPICard({
   value, 
   subtitle, 
   icon: Icon, 
+  tooltip,
   trend,
   variant = 'default',
   className 
@@ -49,7 +57,21 @@ export function KPICard({
     >
       <div className="flex items-start justify-between">
         <div className="space-y-1">
-          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm font-medium text-muted-foreground">{title}</p>
+            {tooltip && (
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-3.5 w-3.5 text-muted-foreground/60 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs text-xs">
+                    {tooltip}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
           <p className="text-2xl font-bold tracking-tight">
             {typeof value === 'number' ? value.toLocaleString('pt-BR') : value}
           </p>

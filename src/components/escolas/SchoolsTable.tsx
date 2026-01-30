@@ -19,7 +19,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -30,6 +29,7 @@ import {
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ArrowUpDown, Filter, X } from "lucide-react";
 import type { Escola } from "@/data/schoolsData";
 import { INECBadge } from "./INECBadge";
+import { AutocompleteInput } from "./AutocompleteInput";
 import { cn } from "@/lib/utils";
 
 interface SchoolsTableProps {
@@ -42,6 +42,14 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [showFilters, setShowFilters] = useState(false);
+
+  // Opções para autocomplete
+  const municipioOptions = useMemo(() => 
+    [...new Set(data.map(e => e.municipio))].sort(), [data]);
+  const escolaOptions = useMemo(() => 
+    data.map(e => e.escola).slice(0, 100), [data]);
+  const greOptions = useMemo(() => 
+    [...new Set(data.map(e => e.gre))].sort(), [data]);
 
   const columns = useMemo<ColumnDef<Escola>[]>(() => [
     {
@@ -324,13 +332,13 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
               GRE
             </label>
-            <Input
+            <AutocompleteInput
               placeholder="Filtrar GRE..."
               value={(table.getColumn("gre")?.getFilterValue() as string) ?? ""}
-              onChange={(e) =>
-                table.getColumn("gre")?.setFilterValue(e.target.value)
+              onChange={(value) =>
+                table.getColumn("gre")?.setFilterValue(value)
               }
-              className="h-9"
+              options={greOptions}
             />
           </div>
           
@@ -381,13 +389,13 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
               Município
             </label>
-            <Input
-              placeholder="Filtrar..."
+            <AutocompleteInput
+              placeholder="Filtrar município..."
               value={(table.getColumn("municipio")?.getFilterValue() as string) ?? ""}
-              onChange={(e) =>
-                table.getColumn("municipio")?.setFilterValue(e.target.value)
+              onChange={(value) =>
+                table.getColumn("municipio")?.setFilterValue(value)
               }
-              className="h-9"
+              options={municipioOptions}
             />
           </div>
           
@@ -395,13 +403,13 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
               Escola
             </label>
-            <Input
-              placeholder="Filtrar..."
+            <AutocompleteInput
+              placeholder="Filtrar escola..."
               value={(table.getColumn("escola")?.getFilterValue() as string) ?? ""}
-              onChange={(e) =>
-                table.getColumn("escola")?.setFilterValue(e.target.value)
+              onChange={(value) =>
+                table.getColumn("escola")?.setFilterValue(value)
               }
-              className="h-9"
+              options={escolaOptions}
             />
           </div>
         </div>
