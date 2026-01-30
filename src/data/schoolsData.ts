@@ -8,6 +8,7 @@ export interface Escola {
   uf: string;
   cod_municipio: string;
   dependencia: 'Estadual' | 'Municipal' | 'Federal';
+  gre: string;                    // Gerência Regional de Educação
   energia: string;
   internet: string;
   wifi: string;
@@ -141,6 +142,47 @@ function gerarEscolas(): Escola[] {
   const statusWifi = ['Wi-Fi adequado', 'Wi-Fi insuficiente', 'Sem Wi-Fi', 'Wi-Fi parcial'];
   const statusDiligencia = ['-', 'Em andamento', 'Concluída', 'Pendente', 'Agendada'];
   
+  // GREs do Piauí (21 Gerências Regionais de Educação)
+  const gres = [
+    '1ª GRE - Teresina',
+    '2ª GRE - Barras',
+    '3ª GRE - Piripiri',
+    '4ª GRE - Campo Maior',
+    '5ª GRE - Pedro II',
+    '6ª GRE - Parnaíba',
+    '7ª GRE - Esperantina',
+    '8ª GRE - Valença do Piauí',
+    '9ª GRE - Picos',
+    '10ª GRE - Floriano',
+    '11ª GRE - Oeiras',
+    '12ª GRE - Uruçuí',
+    '13ª GRE - São Raimundo Nonato',
+    '14ª GRE - Corrente',
+    '15ª GRE - Bom Jesus',
+    '16ª GRE - São João do Piauí',
+    '17ª GRE - Paulistana',
+    '18ª GRE - Fronteiras',
+    '19ª GRE - Jaicós',
+    '20ª GRE - Piracuruca',
+    '21ª GRE - José de Freitas',
+  ];
+  
+  // Mapeamento de município para GRE (simplificado)
+  function getGREForMunicipio(municipio: string): string {
+    if (municipio === 'Teresina') return gres[0];
+    if (municipio === 'Parnaíba' || municipio === 'Luís Correia') return gres[5];
+    if (municipio === 'Picos') return gres[8];
+    if (municipio === 'Piripiri') return gres[2];
+    if (municipio === 'Floriano') return gres[9];
+    if (municipio === 'Campo Maior') return gres[3];
+    if (municipio === 'Barras') return gres[1];
+    if (municipio === 'Esperantina') return gres[6];
+    if (municipio === 'Oeiras') return gres[10];
+    if (municipio === 'Uruçuí') return gres[11];
+    // Para outros, atribui aleatoriamente
+    return gres[Math.floor(Math.random() * gres.length)];
+  }
+  
   // Peso para níveis INEC conforme distribuição real
   const pesoINEC = [
     { nivel: 5, peso: 0.615, label: 'Nível 5' },
@@ -245,6 +287,7 @@ function gerarEscolas(): Escola[] {
         uf: 'PI',
         cod_municipio: (2200000 + Math.floor(Math.random() * 1000)).toString(),
         dependencia: dep,
+        gre: getGREForMunicipio(municipio),
         energia: fatorQualidade > 0.6 || Math.random() > 0.15 ? statusEnergia[0] : statusEnergia[Math.floor(Math.random() * statusEnergia.length)],
         internet: fatorQualidade > 0.5 || Math.random() > 0.25 ? statusInternet[0] : statusInternet[Math.floor(Math.random() * statusInternet.length)],
         wifi: fatorQualidade > 0.7 || Math.random() > 0.35 ? statusWifi[0] : statusWifi[Math.floor(Math.random() * statusWifi.length)],

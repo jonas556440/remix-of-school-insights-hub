@@ -93,7 +93,7 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
     },
     {
       accessorKey: "dependencia",
-      header: "Dependência",
+      header: "Dep.",
       cell: ({ row }) => {
         const dep = row.getValue("dependencia") as string;
         return (
@@ -103,12 +103,35 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
             dep === "Municipal" && "bg-purple-100 text-purple-700",
             dep === "Federal" && "bg-cyan-100 text-cyan-700"
           )}>
-            {dep}
+            {dep.slice(0, 3)}
           </span>
         );
       },
       filterFn: (row, id, value) => {
         return value === "all" || row.getValue(id) === value;
+      },
+    },
+    {
+      accessorKey: "gre",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-auto p-0 font-semibold hover:bg-transparent"
+        >
+          GRE
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      ),
+      cell: ({ row }) => {
+        const gre = row.getValue("gre") as string;
+        // Extrai apenas o número e nome curto da GRE
+        const match = gre.match(/^(\d+)ª GRE/);
+        return (
+          <span className="text-xs" title={gre}>
+            {match ? `${match[1]}ª GRE` : gre}
+          </span>
+        );
       },
     },
     {
@@ -139,33 +162,75 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
       },
     },
     {
-      accessorKey: "internet",
-      header: "Internet",
+      accessorKey: "compartimentos",
+      header: "Amb.",
+      cell: ({ row }) => (
+        <span className="text-xs text-center block">
+          {row.getValue("compartimentos")}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "aps_atual",
+      header: "APs",
       cell: ({ row }) => {
-        const status = row.getValue("internet") as string;
-        const isAdequada = status.toLowerCase().includes("adequada") && !status.toLowerCase().includes("inadequada");
+        const atual = row.original.aps_atual;
+        const necessarios = row.original.aps_necessarios;
+        const isOk = atual >= necessarios;
         return (
           <span className={cn(
-            "text-xs",
-            isAdequada ? "text-success" : "text-destructive"
+            "text-xs font-medium",
+            isOk ? "text-success" : "text-destructive"
           )}>
-            {isAdequada ? "✓" : "✗"} {status}
+            {atual}/{necessarios}
           </span>
         );
       },
     },
     {
-      accessorKey: "wifi",
-      header: "Wi-Fi",
+      accessorKey: "deficit_aps",
+      header: "Déf.",
       cell: ({ row }) => {
-        const status = row.getValue("wifi") as string;
-        const isAdequado = status.toLowerCase().includes("adequado") && !status.toLowerCase().includes("insuficiente");
+        const deficit = row.getValue("deficit_aps") as number;
+        if (deficit === 0) {
+          return <span className="text-xs text-success">✓</span>;
+        }
+        return (
+          <span className="text-xs text-destructive font-medium">
+            -{deficit}
+          </span>
+        );
+      },
+      filterFn: (row, id, value) => {
+        if (value === "all") return true;
+        const deficit = row.getValue(id) as number;
+        if (value === "com_deficit") return deficit > 0;
+        if (value === "sem_deficit") return deficit === 0;
+        return true;
+      },
+    },
+    {
+      accessorKey: "velocidade_contratada",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-auto p-0 font-semibold hover:bg-transparent"
+        >
+          Vel.
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      ),
+      cell: ({ row }) => {
+        const contratada = row.original.velocidade_contratada;
+        const minima = row.original.velocidade_minima;
+        const isOk = contratada >= minima;
         return (
           <span className={cn(
             "text-xs",
-            isAdequado ? "text-success" : "text-warning"
-          )}>
-            {isAdequado ? "✓" : "⚠"} {status}
+            isOk ? "text-success" : "text-destructive"
+          )} title={`Mín: ${minima} Mbps`}>
+            {contratada} Mbps
           </span>
         );
       },
@@ -232,7 +297,7 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
 
       {/* Filter Panel */}
       {showFilters && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-muted/50 rounded-lg animate-fade-in">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 p-4 bg-muted/50 rounded-lg animate-fade-in">
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
               Dependência
@@ -253,6 +318,20 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
                 <SelectItem value="Federal">Federal</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+              GRE
+            </label>
+            <Input
+              placeholder="Filtrar GRE..."
+              value={(table.getColumn("gre")?.getFilterValue() as string) ?? ""}
+              onChange={(e) =>
+                table.getColumn("gre")?.setFilterValue(e.target.value)
+              }
+              className="h-9"
+            />
           </div>
           
           <div>
@@ -279,10 +358,31 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
           
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+              Déficit APs
+            </label>
+            <Select
+              value={(table.getColumn("deficit_aps")?.getFilterValue() as string) ?? "all"}
+              onValueChange={(value) =>
+                table.getColumn("deficit_aps")?.setFilterValue(value === "all" ? "" : value)
+              }
+            >
+              <SelectTrigger className="h-9">
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="com_deficit">Com déficit</SelectItem>
+                <SelectItem value="sem_deficit">Sem déficit</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
               Município
             </label>
             <Input
-              placeholder="Filtrar município..."
+              placeholder="Filtrar..."
               value={(table.getColumn("municipio")?.getFilterValue() as string) ?? ""}
               onChange={(e) =>
                 table.getColumn("municipio")?.setFilterValue(e.target.value)
@@ -296,7 +396,7 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
               Escola
             </label>
             <Input
-              placeholder="Filtrar por nome..."
+              placeholder="Filtrar..."
               value={(table.getColumn("escola")?.getFilterValue() as string) ?? ""}
               onChange={(e) =>
                 table.getColumn("escola")?.setFilterValue(e.target.value)
