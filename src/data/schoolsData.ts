@@ -222,29 +222,58 @@ function gerarEscolas(): Escola[] {
   }
   
   // Apenas escolas estaduais: 640 escolas
-  const distribuicaoDep = [
-    { dep: 'Estadual' as const, count: 640 },
+  // Distribuição mais realista para escolas estaduais
+  const distribuicaoMunicipiosEstaduais: { municipio: string; count: number }[] = [
+    { municipio: 'Teresina', count: 95 },
+    { municipio: 'Parnaíba', count: 28 },
+    { municipio: 'Picos', count: 25 },
+    { municipio: 'Piripiri', count: 22 },
+    { municipio: 'Floriano', count: 20 },
+    { municipio: 'Campo Maior', count: 18 },
+    { municipio: 'Oeiras', count: 16 },
+    { municipio: 'Barras', count: 15 },
+    { municipio: 'São Raimundo Nonato', count: 14 },
+    { municipio: 'Bom Jesus', count: 13 },
+    { municipio: 'Corrente', count: 12 },
+    { municipio: 'Uruçuí', count: 12 },
+    { municipio: 'Pedro II', count: 11 },
+    { municipio: 'José de Freitas', count: 10 },
+    { municipio: 'Esperantina', count: 10 },
+    { municipio: 'União', count: 9 },
+    { municipio: 'Altos', count: 9 },
+    { municipio: 'Valença do Piauí', count: 8 },
+    { municipio: 'Castelo do Piauí', count: 8 },
+    { municipio: 'Paulistana', count: 8 },
+    { municipio: 'Jaicós', count: 7 },
+    { municipio: 'Fronteiras', count: 7 },
+    { municipio: 'São João do Piauí', count: 7 },
+    { municipio: 'Simplício Mendes', count: 6 },
+    { municipio: 'Piracuruca', count: 6 },
+    { municipio: 'Regeneração', count: 6 },
+    { municipio: 'Água Branca', count: 6 },
+    { municipio: 'Amarante', count: 5 },
+    { municipio: 'Elesbão Veloso', count: 5 },
+    { municipio: 'Miguel Alves', count: 5 },
+    { municipio: 'Batalha', count: 5 },
+    { municipio: 'Cocal', count: 5 },
+    { municipio: 'Luzilândia', count: 5 },
+    { municipio: 'Canto do Buriti', count: 5 },
   ];
+  
+  // Calcular total e distribuir o restante
+  const totalDistribuido = distribuicaoMunicipiosEstaduais.reduce((sum, m) => sum + m.count, 0);
+  const restante = 640 - totalDistribuido;
+  
+  // Outros municípios menores
+  const outrosMunicipios = municipiosPiaui.filter(
+    m => !distribuicaoMunicipiosEstaduais.some(d => d.municipio === m)
+  );
   
   let escolaIndex = 0;
   
-  for (const { dep, count } of distribuicaoDep) {
+  // Gerar escolas para municípios com distribuição definida
+  for (const { municipio, count } of distribuicaoMunicipiosEstaduais) {
     for (let i = 0; i < count; i++) {
-      // Escolher município
-      let municipio: string;
-      if (escolaIndex < 458) {
-        municipio = 'Teresina';
-      } else if (escolaIndex < 585) {
-        municipio = 'Parnaíba';
-      } else if (escolaIndex < 697) {
-        municipio = 'Picos';
-      } else if (escolaIndex < 782) {
-        municipio = 'Piripiri';
-      } else if (escolaIndex < 860) {
-        municipio = 'Floriano';
-      } else {
-        municipio = municipiosPiaui[Math.floor(Math.random() * municipiosPiaui.length)];
-      }
       
       const inec = escolherINEC();
       
@@ -285,11 +314,11 @@ function gerarEscolas(): Escola[] {
       
       const escola: Escola = {
         cod_inep: gerarCodINEP(escolaIndex),
-        escola: gerarNomeEscola(dep),
+        escola: gerarNomeEscola('Estadual'),
         municipio,
         uf: 'PI',
         cod_municipio: (2200000 + Math.floor(Math.random() * 1000)).toString(),
-        dependencia: dep,
+        dependencia: 'Estadual',
         gre: getGREForMunicipio(municipio),
         energia: fatorQualidade > 0.6 || Math.random() > 0.15 ? statusEnergia[0] : statusEnergia[Math.floor(Math.random() * statusEnergia.length)],
         internet: fatorQualidade > 0.5 || Math.random() > 0.25 ? statusInternet[0] : statusInternet[Math.floor(Math.random() * statusInternet.length)],
@@ -297,7 +326,6 @@ function gerarEscolas(): Escola[] {
         diligencia: statusDiligencia[Math.floor(Math.random() * statusDiligencia.length)],
         inec: inec.label,
         inec_nivel: inec.nivel,
-        // Campos de Wi-Fi/APs
         compartimentos,
         aps_atual,
         aps_necessarios,
@@ -310,6 +338,65 @@ function gerarEscolas(): Escola[] {
       escolas.push(escola);
       escolaIndex++;
     }
+  }
+  
+  // Gerar escolas restantes para outros municípios menores
+  for (let i = 0; i < restante; i++) {
+    const municipio = outrosMunicipios[i % outrosMunicipios.length];
+    const inec = escolherINEC();
+    const fatorQualidade = inec.nivel / 5;
+    const compartimentos = Math.floor(Math.random() * 15) + 5;
+    const aps_necessarios = Math.ceil(compartimentos / 2);
+    
+    let aps_atual: number;
+    if (inec.nivel >= 5) {
+      aps_atual = aps_necessarios + Math.floor(Math.random() * 3);
+    } else if (inec.nivel === 4) {
+      aps_atual = Math.max(aps_necessarios - Math.floor(Math.random() * 2), Math.floor(aps_necessarios * 0.8));
+    } else if (inec.nivel === 3) {
+      aps_atual = Math.floor(aps_necessarios * (0.4 + Math.random() * 0.3));
+    } else {
+      aps_atual = Math.floor(aps_necessarios * Math.random() * 0.5);
+    }
+    
+    const deficit_aps = Math.max(0, aps_necessarios - aps_atual);
+    const matriculas_maior_turno = Math.floor(Math.random() * 300) + 30;
+    const velocidade_minima = Math.max(50, matriculas_maior_turno);
+    
+    let velocidade_contratada: number;
+    if (inec.nivel >= 4) {
+      velocidade_contratada = velocidade_minima + Math.floor(Math.random() * 100);
+    } else if (inec.nivel === 3) {
+      velocidade_contratada = Math.floor(velocidade_minima * (0.6 + Math.random() * 0.4));
+    } else {
+      velocidade_contratada = Math.floor(velocidade_minima * Math.random() * 0.5);
+    }
+    
+    const escola: Escola = {
+      cod_inep: gerarCodINEP(escolaIndex),
+      escola: gerarNomeEscola('Estadual'),
+      municipio,
+      uf: 'PI',
+      cod_municipio: (2200000 + Math.floor(Math.random() * 1000)).toString(),
+      dependencia: 'Estadual',
+      gre: getGREForMunicipio(municipio),
+      energia: fatorQualidade > 0.6 || Math.random() > 0.15 ? statusEnergia[0] : statusEnergia[Math.floor(Math.random() * statusEnergia.length)],
+      internet: fatorQualidade > 0.5 || Math.random() > 0.25 ? statusInternet[0] : statusInternet[Math.floor(Math.random() * statusInternet.length)],
+      wifi: fatorQualidade > 0.7 || Math.random() > 0.35 ? statusWifi[0] : statusWifi[Math.floor(Math.random() * statusWifi.length)],
+      diligencia: statusDiligencia[Math.floor(Math.random() * statusDiligencia.length)],
+      inec: inec.label,
+      inec_nivel: inec.nivel,
+      compartimentos,
+      aps_atual,
+      aps_necessarios,
+      deficit_aps,
+      matriculas_maior_turno,
+      velocidade_contratada,
+      velocidade_minima,
+    };
+    
+    escolas.push(escola);
+    escolaIndex++;
   }
   
   // Shuffle para misturar
