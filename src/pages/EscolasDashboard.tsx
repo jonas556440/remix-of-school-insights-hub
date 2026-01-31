@@ -1,8 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import { 
   School, 
-  Building2, 
-  Users, 
   Award, 
   AlertTriangle,
   GraduationCap,
@@ -141,7 +139,7 @@ export default function EscolasDashboard() {
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
             📊 Visão Geral — Rede Estadual do Piauí
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             <KPICard
               title="Escolas Estaduais"
               value={kpis.total}
@@ -150,25 +148,18 @@ export default function EscolasDashboard() {
               tooltip="Total de escolas da rede estadual do Piauí sob gestão da SEDUC-PI."
             />
             <KPICard
-              title="Municípios"
-              value={kpis.total_municipios}
-              subtitle="com escolas estaduais"
-              icon={Building2}
-              tooltip="Municípios do Piauí que possuem pelo menos uma escola estadual."
-            />
-            <KPICard
-              title="GREs"
-              value={kpis.total_gres}
-              subtitle="regionais ativas"
-              icon={Users}
-              tooltip="Gerências Regionais de Educação que gerenciam as escolas estaduais."
-            />
-            <KPICard
               title="Ambientes Escolares"
               value={kpis.total_compartimentos}
-              subtitle="total de salas/espaços"
+              subtitle="salas e espaços"
               icon={GraduationCap}
               tooltip="Soma de todos os ambientes escolares (salas de aula, laboratórios, bibliotecas, etc.) nas escolas estaduais."
+            />
+            <KPICard
+              title="Déficit de APs"
+              value={kpis.total_deficit_aps}
+              subtitle={`${kpis.escolas_com_deficit} escolas afetadas`}
+              icon={Wifi}
+              tooltip="Quantidade total de Access Points necessários para atingir a meta de 1 AP a cada 2 ambientes escolares."
             />
             <KPICard
               title="INEC 5 (Excelente)"
