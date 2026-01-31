@@ -100,26 +100,6 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
       ),
     },
     {
-      accessorKey: "dependencia",
-      header: "Dep.",
-      cell: ({ row }) => {
-        const dep = row.getValue("dependencia") as string;
-        return (
-          <span className={cn(
-            "px-2 py-0.5 rounded text-xs font-medium",
-            dep === "Estadual" && "bg-primary/10 text-primary",
-            dep === "Municipal" && "bg-purple-100 text-purple-700",
-            dep === "Federal" && "bg-cyan-100 text-cyan-700"
-          )}>
-            {dep.slice(0, 3)}
-          </span>
-        );
-      },
-      filterFn: (row, id, value) => {
-        return value === "all" || row.getValue(id) === value;
-      },
-    },
-    {
       accessorKey: "gre",
       header: ({ column }) => (
         <Button
@@ -305,29 +285,7 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
 
       {/* Filter Panel */}
       {showFilters && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 p-4 bg-muted/50 rounded-lg animate-fade-in">
-          <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-              Dependência
-            </label>
-            <Select
-              value={(table.getColumn("dependencia")?.getFilterValue() as string) ?? "all"}
-              onValueChange={(value) =>
-                table.getColumn("dependencia")?.setFilterValue(value === "all" ? "" : value)
-              }
-            >
-              <SelectTrigger className="h-9">
-                <SelectValue placeholder="Todas" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
-                <SelectItem value="Estadual">Estadual</SelectItem>
-                <SelectItem value="Municipal">Municipal</SelectItem>
-                <SelectItem value="Federal">Federal</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 p-4 bg-muted/50 rounded-lg animate-fade-in">
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
               GRE

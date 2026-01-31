@@ -1,5 +1,5 @@
-// Dados de escolas do Piauí baseados no ENEC_Piaui_FINAL.xlsx
-// Total: 3.699 escolas com 11 colunas
+// Dados de escolas ESTADUAIS do Piauí baseados no ENEC_Piaui_FINAL.xlsx
+// Total: 640 escolas estaduais (foco exclusivo na rede estadual - SEDUC-PI)
 
 export interface Escola {
   cod_inep: string;
@@ -27,9 +27,6 @@ export interface Escola {
 
 export interface KPIs {
   total: number;
-  estaduais: number;
-  municipais: number;
-  federais: number;
   inec_5: number;
   inec_4: number;
   inec_3: number;
@@ -41,7 +38,8 @@ export interface KPIs {
   internet_adequada: number;
   wifi_adequado: number;
   total_municipios: number;
-  // Novos KPIs de conectividade
+  total_gres: number;
+  // KPIs de conectividade
   total_compartimentos: number;
   total_aps_necessarios: number;
   total_aps_atual: number;
@@ -223,12 +221,9 @@ function gerarEscolas(): Escola[] {
     return `${prefixo} ${nome}${sufixo}`.toUpperCase();
   }
   
-  // Distribuir por dependência conforme dados reais
-  // Municipal: 3036 (82%), Estadual: 640 (17%), Federal: 23 (1%)
+  // Apenas escolas estaduais: 640 escolas
   const distribuicaoDep = [
-    { dep: 'Municipal' as const, count: 3036 },
     { dep: 'Estadual' as const, count: 640 },
-    { dep: 'Federal' as const, count: 23 },
   ];
   
   let escolaIndex = 0;
@@ -342,12 +337,10 @@ export function getEscolaByINEP(inep: string): Escola | undefined {
 
 export function calcularKPIs(escolas: Escola[]): KPIs {
   const municipiosUnicos = new Set(escolas.map(e => e.municipio));
+  const gresUnicas = new Set(escolas.map(e => e.gre));
   
   return {
     total: escolas.length,
-    estaduais: escolas.filter(e => e.dependencia === 'Estadual').length,
-    municipais: escolas.filter(e => e.dependencia === 'Municipal').length,
-    federais: escolas.filter(e => e.dependencia === 'Federal').length,
     inec_5: escolas.filter(e => e.inec_nivel === 5).length,
     inec_4: escolas.filter(e => e.inec_nivel === 4).length,
     inec_3: escolas.filter(e => e.inec_nivel === 3).length,
@@ -359,7 +352,8 @@ export function calcularKPIs(escolas: Escola[]): KPIs {
     internet_adequada: escolas.filter(e => e.internet.toLowerCase().includes('adequada') && !e.internet.toLowerCase().includes('inadequada')).length,
     wifi_adequado: escolas.filter(e => e.wifi.toLowerCase().includes('adequado') && !e.wifi.toLowerCase().includes('insuficiente')).length,
     total_municipios: municipiosUnicos.size,
-    // Novos KPIs de conectividade
+    total_gres: gresUnicas.size,
+    // KPIs de conectividade
     total_compartimentos: escolas.reduce((sum, e) => sum + e.compartimentos, 0),
     total_aps_necessarios: escolas.reduce((sum, e) => sum + e.aps_necessarios, 0),
     total_aps_atual: escolas.reduce((sum, e) => sum + e.aps_atual, 0),
@@ -375,14 +369,6 @@ export function getMunicipios(): string[] {
 }
 
 export const cardsPredefinidos: CardPredefinido[] = [
-  {
-    id: 'estaduais',
-    title: 'Escolas Estaduais',
-    description: 'Todas as escolas da rede estadual do Piauí',
-    icon: '🏛️',
-    color: 'blue',
-    filter: (e) => e.dependencia === 'Estadual',
-  },
   {
     id: 'criticas',
     title: 'Conectividade Crítica',
@@ -400,9 +386,17 @@ export const cardsPredefinidos: CardPredefinido[] = [
     filter: (e) => e.wifi.toLowerCase().includes('insuficiente'),
   },
   {
+    id: 'deficit_aps',
+    title: 'Déficit de APs',
+    description: 'Escolas que precisam de mais Access Points',
+    icon: '📡',
+    color: 'purple',
+    filter: (e) => e.deficit_aps > 0,
+  },
+  {
     id: 'teresina',
     title: 'Teresina (Capital)',
-    description: 'Escolas da capital piauiense',
+    description: 'Escolas estaduais da capital piauiense',
     icon: '🏙️',
     color: 'indigo',
     filter: (e) => e.municipio === 'Teresina',
@@ -424,20 +418,20 @@ export const cardsPredefinidos: CardPredefinido[] = [
     filter: (e) => e.internet.toLowerCase().includes('inadequada') || e.internet.toLowerCase().includes('sem'),
   },
   {
-    id: 'municipais',
-    title: 'Escolas Municipais',
-    description: 'Todas as escolas da rede municipal',
-    icon: '🏫',
-    color: 'purple',
-    filter: (e) => e.dependencia === 'Municipal',
+    id: 'velocidade_baixa',
+    title: 'Velocidade Insuficiente',
+    description: 'Escolas com banda larga abaixo do mínimo MEC',
+    icon: '🐢',
+    color: 'cyan',
+    filter: (e) => e.velocidade_contratada < e.velocidade_minima,
   },
   {
-    id: 'federais',
-    title: 'Institutos Federais',
-    description: 'Escolas da rede federal de ensino',
-    icon: '🎓',
-    color: 'cyan',
-    filter: (e) => e.dependencia === 'Federal',
+    id: 'interior',
+    title: 'Interior do Estado',
+    description: 'Escolas fora da capital Teresina',
+    icon: '🌾',
+    color: 'blue',
+    filter: (e) => e.municipio !== 'Teresina',
   },
 ];
 
@@ -453,20 +447,27 @@ export function getChartData(escolas: Escola[]) {
     { name: 'Nível 0', value: escolas.filter(e => e.inec_nivel === 0).length, color: 'hsl(0, 62%, 30%)' },
   ];
   
-  // Conectividade por Dependência
-  const dependencias = ['Estadual', 'Municipal', 'Federal'] as const;
-  const conectividadePorDep = dependencias.map(dep => {
-    const escolasDep = escolas.filter(e => e.dependencia === dep);
-    const total = escolasDep.length;
-    const bom = escolasDep.filter(e => e.inec_nivel >= 4).length;
-    const critico = escolasDep.filter(e => e.inec_nivel <= 2).length;
-    
-    return {
-      name: dep,
-      bom: total ? Math.round((bom / total) * 100) : 0,
-      critico: total ? Math.round((critico / total) * 100) : 0,
-    };
+  // Conectividade por GRE (Top 10)
+  const greStats: Record<string, { total: number; bom: number; critico: number }> = {};
+  escolas.forEach(e => {
+    const greName = e.gre.replace(/^\d+ª GRE - /, '');
+    if (!greStats[greName]) {
+      greStats[greName] = { total: 0, bom: 0, critico: 0 };
+    }
+    greStats[greName].total += 1;
+    if (e.inec_nivel >= 4) greStats[greName].bom += 1;
+    if (e.inec_nivel <= 2) greStats[greName].critico += 1;
   });
+  
+  const conectividadePorGRE = Object.entries(greStats)
+    .map(([name, data]) => ({
+      name,
+      bom: Math.round((data.bom / data.total) * 100),
+      critico: Math.round((data.critico / data.total) * 100),
+      total: data.total,
+    }))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 8);
   
   // Top 10 Municípios
   const municipioCount: Record<string, number> = {};
@@ -537,7 +538,7 @@ export function getChartData(escolas: Escola[]) {
   
   return {
     inecDistribution,
-    conectividadePorDep,
+    conectividadePorGRE,
     topMunicipios,
     infraStatus,
     deficitPorGRE,

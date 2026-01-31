@@ -139,41 +139,41 @@ export default function EscolasDashboard() {
         {/* KPIs */}
         <section>
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            📊 Visão Geral — Piauí 2026
+            📊 Visão Geral — Rede Estadual do Piauí
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             <KPICard
-              title="Total de Escolas"
+              title="Escolas Estaduais"
               value={kpis.total}
               icon={School}
               variant="primary"
-              tooltip="Total de unidades escolares públicas (estaduais, municipais e federais) cadastradas no censo escolar do Piauí."
+              tooltip="Total de escolas da rede estadual do Piauí sob gestão da SEDUC-PI."
             />
             <KPICard
-              title="Estaduais"
-              value={kpis.estaduais}
-              subtitle={`${((kpis.estaduais / kpis.total) * 100).toFixed(0)}% do total`}
+              title="Municípios"
+              value={kpis.total_municipios}
+              subtitle="com escolas estaduais"
               icon={Building2}
-              tooltip="Escolas mantidas pelo Governo do Estado do Piauí, sob gestão da SEDUC-PI."
+              tooltip="Municípios do Piauí que possuem pelo menos uma escola estadual."
             />
             <KPICard
-              title="Municipais"
-              value={kpis.municipais}
-              subtitle={`${((kpis.municipais / kpis.total) * 100).toFixed(0)}% do total`}
+              title="GREs"
+              value={kpis.total_gres}
+              subtitle="regionais ativas"
               icon={Users}
-              tooltip="Escolas mantidas pelas prefeituras municipais, sob gestão das secretarias municipais de educação."
+              tooltip="Gerências Regionais de Educação que gerenciam as escolas estaduais."
             />
             <KPICard
-              title="Federais"
-              value={kpis.federais}
-              subtitle={`${((kpis.federais / kpis.total) * 100).toFixed(0)}% do total`}
+              title="Ambientes Escolares"
+              value={kpis.total_compartimentos}
+              subtitle="total de salas/espaços"
               icon={GraduationCap}
-              tooltip="Institutos Federais, Colégios de Aplicação e outras unidades vinculadas ao MEC."
+              tooltip="Soma de todos os ambientes escolares (salas de aula, laboratórios, bibliotecas, etc.) nas escolas estaduais."
             />
             <KPICard
               title="INEC 5 (Excelente)"
               value={kpis.inec_5}
-              subtitle={`${((kpis.inec_5 / kpis.total) * 100).toFixed(0)}% do total`}
+              subtitle={`${((kpis.inec_5 / kpis.total) * 100).toFixed(0)}% das escolas`}
               icon={Award}
               variant="success"
               tooltip="Escolas com nível máximo de conectividade: Wi-Fi adequado (1 AP a cada 2 ambientes) e velocidade de internet ≥ 1 Mbps por aluno."
@@ -181,7 +181,7 @@ export default function EscolasDashboard() {
             <KPICard
               title="Críticas (INEC ≤2)"
               value={kpis.inec_critico}
-              subtitle={`${((kpis.inec_critico / kpis.total) * 100).toFixed(0)}% do total`}
+              subtitle={`${((kpis.inec_critico / kpis.total) * 100).toFixed(0)}% das escolas`}
               icon={AlertTriangle}
               variant="danger"
               tooltip="Escolas em situação crítica: sem internet adequada, déficit de Access Points ou velocidade insuficiente para o número de alunos."
@@ -204,9 +204,9 @@ export default function EscolasDashboard() {
             
             <div className="bg-card border rounded-2xl p-5">
               <h3 className="font-semibold text-foreground mb-4 pb-3 border-b">
-                Conectividade por Dependência Administrativa
+                Conectividade por GRE
               </h3>
-              <DependencyBarChart data={chartData.conectividadePorDep} />
+              <DependencyBarChart data={chartData.conectividadePorGRE} />
             </div>
             
             <div className="bg-card border rounded-2xl p-5">

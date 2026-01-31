@@ -9,7 +9,7 @@ export function ExecutiveSummary({ kpis }: ExecutiveSummaryProps) {
   const pctExcelencia = ((kpis.inec_5 / kpis.total) * 100).toFixed(1);
   const pctCriticas = ((kpis.inec_critico / kpis.total) * 100).toFixed(1);
   const pctWifi = ((kpis.wifi_adequado / kpis.total) * 100).toFixed(1);
-  const pctEnergia = ((kpis.energia_adequada / kpis.total) * 100).toFixed(1);
+  const pctVelocidade = ((kpis.escolas_velocidade_ok / kpis.total) * 100).toFixed(1);
   
   const items = [
     {
@@ -24,8 +24,8 @@ export function ExecutiveSummary({ kpis }: ExecutiveSummaryProps) {
     },
     {
       icon: MapPin,
-      value: kpis.total_municipios.toString(),
-      label: 'municípios cobertos no estado do Piauí',
+      value: `${kpis.total_municipios} municípios, ${kpis.total_gres} GREs`,
+      label: 'cobertura da rede estadual no Piauí',
     },
     {
       icon: Wifi,
@@ -34,8 +34,8 @@ export function ExecutiveSummary({ kpis }: ExecutiveSummaryProps) {
     },
     {
       icon: Zap,
-      value: `${pctEnergia}% (${kpis.energia_adequada.toLocaleString('pt-BR')} escolas)`,
-      label: 'possuem energia adequada',
+      value: `${pctVelocidade}% (${kpis.escolas_velocidade_ok.toLocaleString('pt-BR')} escolas)`,
+      label: 'possuem velocidade de internet adequada',
     },
     {
       icon: Calendar,
@@ -47,7 +47,7 @@ export function ExecutiveSummary({ kpis }: ExecutiveSummaryProps) {
   return (
     <div className="bg-gradient-hero rounded-2xl p-6 text-white shadow-lg">
       <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-        💡 Resumo Executivo
+        💡 Resumo Executivo — Rede Estadual
       </h3>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
