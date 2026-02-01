@@ -64,7 +64,7 @@ export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalPr
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="border-b pb-4">
           <div className="flex items-start justify-between gap-4">
             <div>
