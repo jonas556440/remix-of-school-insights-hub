@@ -4,10 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
-import { MapPin, Building2, Wifi, Zap, Globe, FileText, Camera, Users, Radio, Gauge } from "lucide-react";
+import { MapPin, Building2, Wifi, Zap, Globe, FileText, Camera, Users, Radio, Gauge, Wrench } from "lucide-react";
 import type { Escola } from "@/data/schoolsData";
 import { INECBadge } from "./INECBadge";
 import { PhotoGallery } from "./PhotoGallery";
+import { MiniMap } from "./MiniMap";
+import { InfrastructureTab } from "./InfrastructureTab";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 
@@ -91,7 +93,7 @@ export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalPr
         </DialogHeader>
         
         <Tabs defaultValue="geral" className="mt-4 flex flex-col">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="geral" className="gap-1.5">
               <FileText className="h-4 w-4" />
               Geral
@@ -99,6 +101,10 @@ export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalPr
             <TabsTrigger value="conectividade" className="gap-1.5">
               <Wifi className="h-4 w-4" />
               Conectividade
+            </TabsTrigger>
+            <TabsTrigger value="infraestrutura" className="gap-1.5">
+              <Wrench className="h-4 w-4" />
+              Infraestrutura
             </TabsTrigger>
             <TabsTrigger value="fotos" className="gap-1.5">
               <Camera className="h-4 w-4" />
@@ -151,17 +157,36 @@ export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalPr
               </p>
             </div>
             
-            <div>
-              <p className="text-sm font-medium text-muted-foreground mb-2">Observações</p>
-              <Textarea
-                placeholder="Adicione observações sobre esta escola..."
-                value={observacoes}
-                onChange={(e) => setObservacoes(e.target.value)}
-                rows={4}
-              />
-              <Button size="sm" className="mt-2">
-                Salvar Observações
-              </Button>
+            {/* Mini Mapa e Observações */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground mb-2">Observações</p>
+                <Textarea
+                  placeholder="Adicione observações sobre esta escola..."
+                  value={observacoes}
+                  onChange={(e) => setObservacoes(e.target.value)}
+                  rows={4}
+                />
+                <Button size="sm" className="mt-2">
+                  Salvar Observações
+                </Button>
+              </div>
+              
+              {/* Mini Mapa */}
+              <div>
+                <p className="text-sm font-medium text-muted-foreground mb-2">
+                  <MapPin className="h-4 w-4 inline mr-1" />
+                  Localização
+                </p>
+                <div className="h-[180px]">
+                  <MiniMap 
+                    latitude={escola.latitude}
+                    longitude={escola.longitude}
+                    schoolName={escola.escola}
+                    municipio={escola.municipio}
+                  />
+                </div>
+              </div>
             </div>
           </TabsContent>
           
@@ -295,6 +320,11 @@ export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalPr
                 <span className="text-xl">{getStatusIcon(escola.energia, 'energia')}</span>
               </div>
             </div>
+          </TabsContent>
+          
+          {/* Tab Infraestrutura */}
+          <TabsContent value="infraestrutura" className="mt-4 min-h-[450px]">
+            <InfrastructureTab data={escola.infraestrutura || null} />
           </TabsContent>
           
           {/* Tab Fotos */}

@@ -1,6 +1,27 @@
 // Dados de escolas ESTADUAIS do Piauí baseados no ENEC_Piaui_FINAL.xlsx
 // Total: 640 escolas estaduais (foco exclusivo na rede estadual - SEDUC-PI)
 
+export interface Obra {
+  status: 'em_execucao' | 'concluida' | 'pendente';
+  tipo: string;
+  valor: number;
+  descricao: string;
+}
+
+export interface InfrastructureData {
+  ambientes_existentes: string;
+  climatizacao: {
+    subestacao: string;
+    climatizada: boolean;
+  };
+  obras: Obra[];
+  plano_intervencao: {
+    ambientes_faltantes: string;
+    valor_estimado: number;
+  };
+  observacoes: string;
+}
+
 export interface Escola {
   cod_inep: string;
   escola: string;
@@ -23,6 +44,11 @@ export interface Escola {
   matriculas_maior_turno: number; // Para cálculo de velocidade mínima (1 Mbps/aluno)
   velocidade_contratada: number; // Mbps contratados
   velocidade_minima: number;     // 1 Mbps * alunos, mínimo 50 Mbps
+  // Campos de localização
+  latitude: number;
+  longitude: number;
+  // Dados de infraestrutura
+  infraestrutura?: InfrastructureData;
 }
 
 export interface KPIs {
@@ -121,6 +147,106 @@ const distribuicaoMunicipios: Record<string, number> = {
   'Altos': 42,
   'Esperantina': 38,
 };
+
+// Coordenadas base dos principais municípios do Piauí
+const coordenadasMunicipios: Record<string, { lat: number; lng: number }> = {
+  'Teresina': { lat: -5.0892, lng: -42.8019 },
+  'Parnaíba': { lat: -2.9055, lng: -41.7768 },
+  'Picos': { lat: -7.0769, lng: -41.4669 },
+  'Piripiri': { lat: -4.2733, lng: -41.7769 },
+  'Floriano': { lat: -6.7669, lng: -43.0227 },
+  'Campo Maior': { lat: -4.8278, lng: -42.1683 },
+  'Barras': { lat: -4.2445, lng: -42.2941 },
+  'União': { lat: -4.5866, lng: -42.8594 },
+  'Altos': { lat: -5.0388, lng: -42.4608 },
+  'Esperantina': { lat: -3.9014, lng: -42.2342 },
+  'Pedro II': { lat: -4.4241, lng: -41.4597 },
+  'Oeiras': { lat: -6.9733, lng: -42.1308 },
+  'José de Freitas': { lat: -4.7558, lng: -42.5750 },
+  'São Raimundo Nonato': { lat: -9.0153, lng: -42.6986 },
+  'Bom Jesus': { lat: -9.0744, lng: -44.3586 },
+  'Corrente': { lat: -10.4400, lng: -45.1619 },
+  'Uruçuí': { lat: -7.2394, lng: -44.5556 },
+  'Paulistana': { lat: -8.1350, lng: -41.1450 },
+  'Valença do Piauí': { lat: -6.4050, lng: -41.7461 },
+  'Jaicós': { lat: -7.3639, lng: -41.1358 },
+};
+
+function gerarLatitude(municipio: string): number {
+  const coords = coordenadasMunicipios[municipio];
+  if (coords) {
+    // Adiciona pequena variação para cada escola
+    return coords.lat + (Math.random() - 0.5) * 0.02;
+  }
+  // Coordenada padrão para Piauí com variação
+  return -5.5 + (Math.random() - 0.5) * 5;
+}
+
+function gerarLongitude(municipio: string): number {
+  const coords = coordenadasMunicipios[municipio];
+  if (coords) {
+    return coords.lng + (Math.random() - 0.5) * 0.02;
+  }
+  return -42.5 + (Math.random() - 0.5) * 3;
+}
+
+// Gerar dados de infraestrutura mock
+function gerarInfraestrutura(compartimentos: number, inecNivel: number): InfrastructureData {
+  const tiposAmbientes = [
+    'Salas de aula',
+    'Laboratório de informática',
+    'Biblioteca',
+    'Refeitório',
+    'Quadra',
+    'Vestiário',
+    'Sala AEE',
+    'Saúde Digital',
+    'Kit de Mediação Tecnológica',
+  ];
+  
+  // Gerar ambientes baseado no número de compartimentos
+  const numSalas = Math.max(3, Math.floor(compartimentos * 0.6));
+  const outrosAmbientes = tiposAmbientes.slice(1).filter(() => Math.random() > 0.4);
+  const ambientesStr = [`${numSalas} Salas de aula`, ...outrosAmbientes].join(' - ');
+  
+  // Gerar obras baseado no nível INEC
+  const obras: Obra[] = [];
+  if (inecNivel < 4 && Math.random() > 0.3) {
+    obras.push({
+      status: Math.random() > 0.5 ? 'em_execucao' : 'concluida',
+      tipo: 'ATA',
+      valor: Math.floor(Math.random() * 400000) + 100000,
+      descricao: 'Adaptações de Laboratórios, Modernização da Fachada',
+    });
+  }
+  if (Math.random() > 0.6) {
+    obras.push({
+      status: 'concluida',
+      tipo: 'ATA',
+      valor: Math.floor(Math.random() * 300000) + 50000,
+      descricao: 'Reformas na Quadra, Retelhamento',
+    });
+  }
+  
+  return {
+    ambientes_existentes: ambientesStr,
+    climatizacao: {
+      subestacao: Math.random() > 0.5 ? 'Prevista por RDC' : 'Não prevista',
+      climatizada: inecNivel >= 4 && Math.random() > 0.4,
+    },
+    obras,
+    plano_intervencao: inecNivel < 4 ? {
+      ambientes_faltantes: 'Lab. Ciências, Quadra Coberta',
+      valor_estimado: Math.floor(Math.random() * 1500000) + 500000,
+    } : {
+      ambientes_faltantes: '',
+      valor_estimado: 0,
+    },
+    observacoes: inecNivel < 3 
+      ? 'Unidade necessita de atenção prioritária. Infraestrutura requer melhorias significativas.'
+      : '-',
+  };
+}
 
 // Gera escolas mock realistas
 function gerarEscolas(): Escola[] {
@@ -333,6 +459,11 @@ function gerarEscolas(): Escola[] {
         matriculas_maior_turno,
         velocidade_contratada,
         velocidade_minima,
+        // Coordenadas aproximadas para municípios do Piauí
+        latitude: gerarLatitude(municipio),
+        longitude: gerarLongitude(municipio),
+        // Dados de infraestrutura (mock)
+        infraestrutura: gerarInfraestrutura(compartimentos, inec.nivel),
       };
       
       escolas.push(escola);
@@ -393,6 +524,9 @@ function gerarEscolas(): Escola[] {
       matriculas_maior_turno,
       velocidade_contratada,
       velocidade_minima,
+      latitude: gerarLatitude(municipio),
+      longitude: gerarLongitude(municipio),
+      infraestrutura: gerarInfraestrutura(compartimentos, inec.nivel),
     };
     
     escolas.push(escola);
