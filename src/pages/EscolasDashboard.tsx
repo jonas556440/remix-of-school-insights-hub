@@ -105,7 +105,7 @@ export default function EscolasDashboard() {
               />
               <div>
                 <h1 className="text-2xl font-bold text-foreground">Escolas 2026</h1>
-                <p className="text-sm text-muted-foreground">SEDUC-PI • Dados ENEC/MEC</p>
+                <p className="text-sm text-muted-foreground">Painel de Conectividade • Base ENEC/MEC</p>
               </div>
             </div>
             
