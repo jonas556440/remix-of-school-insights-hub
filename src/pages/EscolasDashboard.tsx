@@ -109,14 +109,6 @@ export default function EscolasDashboard() {
               </div>
             </div>
             
-            <div className="hidden md:block flex-1 max-w-md mx-8">
-              <GlobalSearch 
-                onSearch={handleSearch} 
-                onSelectSchool={handleRowClick}
-                escolas={allEscolas}
-              />
-            </div>
-            
             <div className="flex items-center gap-2">
               <ThemeToggle />
               <Button variant="outline" size="sm" className="gap-2">
@@ -125,19 +117,21 @@ export default function EscolasDashboard() {
               </Button>
             </div>
           </div>
-          
-          {/* Mobile Search */}
-          <div className="md:hidden mt-4">
+        </div>
+      </header>
+      
+      <main className="container mx-auto px-4 py-6 space-y-8">
+        {/* Busca Global */}
+        <section>
+          <div className="max-w-2xl mx-auto">
             <GlobalSearch 
               onSearch={handleSearch} 
               onSelectSchool={handleRowClick}
               escolas={allEscolas}
             />
           </div>
-        </div>
-      </header>
-      
-      <main className="container mx-auto px-4 py-6 space-y-8">
+        </section>
+        
         {/* KPIs */}
         <section>
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
