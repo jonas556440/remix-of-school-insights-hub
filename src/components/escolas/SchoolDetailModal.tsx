@@ -90,7 +90,7 @@ export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalPr
           </div>
         </DialogHeader>
         
-        <Tabs defaultValue="geral" className="mt-4">
+        <Tabs defaultValue="geral" className="mt-4 flex flex-col">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="geral" className="gap-1.5">
               <FileText className="h-4 w-4" />
@@ -107,7 +107,7 @@ export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalPr
           </TabsList>
           
           {/* Tab Geral */}
-          <TabsContent value="geral" className="mt-4 space-y-4">
+          <TabsContent value="geral" className="mt-4 space-y-4 min-h-[450px]">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
                 <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
@@ -166,7 +166,7 @@ export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalPr
           </TabsContent>
           
           {/* Tab Conectividade */}
-          <TabsContent value="conectividade" className="mt-4 space-y-4">
+          <TabsContent value="conectividade" className="mt-4 space-y-4 min-h-[450px]">
             {/* INEC Badge com Tooltip explicativo */}
             <div className="flex items-center justify-center p-6 bg-muted/50 rounded-lg">
               <div className="text-center">
@@ -293,7 +293,7 @@ export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalPr
           </TabsContent>
           
           {/* Tab Fotos */}
-          <TabsContent value="fotos" className="mt-4">
+          <TabsContent value="fotos" className="mt-4 min-h-[450px]">
             <PhotoGallery photos={photos} isLoading={photosLoading} />
           </TabsContent>
         </Tabs>
