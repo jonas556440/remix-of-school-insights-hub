@@ -95,9 +95,10 @@ export default function EscolasDashboard() {
       <header className="sticky top-0 z-50 bg-card border-b shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-primary flex items-center justify-center">
-                <School className="h-5 w-5 text-primary-foreground" />
+            <div className="flex items-center gap-4">
+              {/* Espaço para logo retangular */}
+              <div className="h-12 w-28 rounded-lg bg-muted/50 border-2 border-dashed border-muted-foreground/30 flex items-center justify-center">
+                <span className="text-[10px] text-muted-foreground/60 font-medium">LOGO</span>
               </div>
               <div>
                 <h1 className="text-xl font-bold text-foreground">Escolas 2026</h1>
