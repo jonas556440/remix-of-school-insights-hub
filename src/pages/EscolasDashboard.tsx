@@ -101,7 +101,7 @@ export default function EscolasDashboard() {
               <img 
                 src={logoSeducPi} 
                 alt="Secretaria da Educação - SEDUC | Governo do Piauí" 
-                className="h-16 w-auto object-contain"
+                className="h-24 w-auto object-contain"
               />
               <div>
                 <h1 className="text-xl font-bold text-foreground">Escolas 2026</h1>
