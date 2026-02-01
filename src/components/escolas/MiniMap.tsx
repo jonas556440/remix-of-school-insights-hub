@@ -47,8 +47,8 @@ export function MiniMap({ latitude, longitude, schoolName, municipio }: MiniMapP
         </Button>
       </div>
       
-      {/* Location label */}
-      <div className="absolute top-2 left-2 bg-background/90 px-2 py-1 rounded text-xs font-medium shadow-sm">
+      {/* Location label - positioned to avoid zoom controls */}
+      <div className="absolute bottom-2 left-2 bg-background/90 px-2 py-1 rounded text-xs font-medium shadow-sm">
         📍 {municipio}, PI
       </div>
     </div>
