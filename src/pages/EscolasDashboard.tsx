@@ -104,8 +104,8 @@ export default function EscolasDashboard() {
                 className="h-24 w-auto object-contain"
               />
               <div>
-                <h1 className="text-xl font-bold text-foreground">Escolas 2026</h1>
-                <p className="text-xs text-muted-foreground">SEDUC-PI • Conectividade Educacional</p>
+                <h1 className="text-2xl font-bold text-foreground">Escolas 2026</h1>
+                <p className="text-sm text-muted-foreground">SEDUC-PI • Dados ENEC/MEC</p>
               </div>
             </div>
             
