@@ -7,8 +7,9 @@ import { Progress } from "@/components/ui/progress";
 import { MapPin, Building2, Wifi, Zap, Globe, FileText, Camera, Users, Radio, Gauge } from "lucide-react";
 import type { Escola } from "@/data/schoolsData";
 import { INECBadge } from "./INECBadge";
+import { PhotoGallery } from "./PhotoGallery";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface SchoolDetailModalProps {
   escola: Escola | null;
@@ -16,8 +17,38 @@ interface SchoolDetailModalProps {
   onClose: () => void;
 }
 
+// Mock function to simulate API call for photos
+// Replace this with actual API call when backend is ready
+const fetchSchoolPhotos = async (codInep: string): Promise<{ id: string; url: string }[]> => {
+  // Simulate API delay
+  await new Promise((resolve) => setTimeout(resolve, 800));
+  
+  // Return mock photos for demonstration
+  // In production, this would call your API endpoint
+  const mockPhotos = Array.from({ length: 32 }, (_, i) => ({
+    id: `${codInep}-photo-${i + 1}`,
+    url: `https://picsum.photos/seed/${codInep}-${i}/400/400`,
+  }));
+  
+  return mockPhotos;
+};
+
 export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalProps) {
   const [observacoes, setObservacoes] = useState("");
+  const [photos, setPhotos] = useState<{ id: string; url: string }[]>([]);
+  const [photosLoading, setPhotosLoading] = useState(false);
+  
+  // Fetch photos when modal opens
+  useEffect(() => {
+    if (open && escola) {
+      setPhotosLoading(true);
+      fetchSchoolPhotos(escola.cod_inep)
+        .then(setPhotos)
+        .finally(() => setPhotosLoading(false));
+    } else {
+      setPhotos([]);
+    }
+  }, [open, escola?.cod_inep]);
   
   if (!escola) return null;
   
@@ -263,15 +294,7 @@ export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalPr
           
           {/* Tab Fotos */}
           <TabsContent value="fotos" className="mt-4">
-            <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
-              <Camera className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
-              <p className="text-muted-foreground mb-3">
-                Nenhuma foto adicionada ainda
-              </p>
-              <Button variant="outline" size="sm">
-                Adicionar Fotos
-              </Button>
-            </div>
+            <PhotoGallery photos={photos} isLoading={photosLoading} />
           </TabsContent>
         </Tabs>
         
