@@ -26,11 +26,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ArrowUpDown, Filter, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ArrowUpDown, Filter, X, FileSpreadsheet } from "lucide-react";
 import type { Escola } from "@/data/schoolsData";
 import { INECBadge } from "./INECBadge";
 import { AutocompleteInput } from "./AutocompleteInput";
 import { cn } from "@/lib/utils";
+import * as XLSX from "xlsx";
+import { useToast } from "@/hooks/use-toast";
 
 interface SchoolsTableProps {
   data: Escola[];
@@ -42,6 +44,7 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const { toast } = useToast();
 
   // Opções para autocomplete
   const municipioOptions = useMemo(() => 
@@ -250,6 +253,70 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
     setColumnFilters([]);
   }, []);
 
+  // Função para exportar para Excel
+  const exportToExcel = useCallback(() => {
+    const filteredData = table.getFilteredRowModel().rows.map(row => row.original);
+    
+    const excelData = filteredData.map((escola) => ({
+      'Código INEP': escola.cod_inep,
+      'Escola': escola.escola,
+      'Município': escola.municipio,
+      'UF': escola.uf,
+      'Código Município': escola.cod_municipio,
+      'Dependência': escola.dependencia,
+      'GRE': escola.gre,
+      'INEC Nível': escola.inec_nivel,
+      'INEC Classificação': escola.inec,
+      'Ambientes (Compartimentos)': escola.compartimentos,
+      'APs Instalados': escola.aps_atual,
+      'APs Necessários': escola.aps_necessarios,
+      'Déficit APs': escola.deficit_aps,
+      'Status APs': escola.deficit_aps === 0 ? 'Adequado' : 'Com déficit',
+      'Matrículas Maior Turno': escola.matriculas_maior_turno,
+      'Velocidade Contratada (Mbps)': escola.velocidade_contratada,
+      'Velocidade Mínima (Mbps)': escola.velocidade_minima,
+      'Status Velocidade': escola.velocidade_contratada >= escola.velocidade_minima ? 'Adequada' : 'Inadequada',
+      'Energia': escola.energia,
+      'Internet': escola.internet,
+      'Wi-Fi': escola.wifi,
+      'Diligência': escola.diligencia,
+      'Latitude': escola.latitude,
+      'Longitude': escola.longitude,
+      'Ambientes Existentes': escola.infraestrutura?.ambientes_existentes || '-',
+      'Subestação': escola.infraestrutura?.climatizacao?.subestacao || '-',
+      'Climatizada': escola.infraestrutura?.climatizacao?.climatizada ? 'Sim' : 'Não',
+      'Ambientes Faltantes': escola.infraestrutura?.plano_intervencao?.ambientes_faltantes || '-',
+      'Valor Estimado Intervenção': escola.infraestrutura?.plano_intervencao?.valor_estimado || 0,
+      'Observações Infraestrutura': escola.infraestrutura?.observacoes || '-',
+      'Obras': escola.infraestrutura?.obras?.map(o => 
+        `[${o.status === 'concluida' ? 'Concluída' : o.status === 'em_execucao' ? 'Em execução' : 'Pendente'}] ${o.descricao} - R$ ${o.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+      ).join(' | ') || '-',
+    }));
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(excelData);
+
+    ws['!cols'] = [
+      { wch: 12 }, { wch: 45 }, { wch: 20 }, { wch: 5 }, { wch: 12 }, { wch: 12 }, { wch: 25 },
+      { wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 10 }, { wch: 12 },
+      { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 12 }, { wch: 20 }, { wch: 20 }, { wch: 20 },
+      { wch: 15 }, { wch: 12 }, { wch: 12 }, { wch: 50 }, { wch: 20 }, { wch: 12 }, { wch: 30 },
+      { wch: 18 }, { wch: 50 }, { wch: 80 },
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws, 'Escolas');
+
+    const dataStr = new Date().toISOString().split('T')[0];
+    const filename = `escolas_seduc_pi_${dataStr}.xlsx`;
+
+    XLSX.writeFile(wb, filename);
+
+    toast({
+      title: "Exportação concluída",
+      description: `${filteredData.length} escolas exportadas para ${filename}`,
+    });
+  }, [table, toast]);
+
   return (
     <div className="space-y-4">
       {/* Filter Controls */}
@@ -276,6 +343,16 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
               Limpar
             </Button>
           )}
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={exportToExcel}
+            className="gap-2 text-success hover:text-success hover:bg-success/10"
+          >
+            <FileSpreadsheet className="h-4 w-4" />
+            Exportar XLSX
+          </Button>
         </div>
         
         <div className="text-sm text-muted-foreground">
