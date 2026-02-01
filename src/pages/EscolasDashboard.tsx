@@ -97,7 +97,7 @@ export default function EscolasDashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               {/* Espaço para logo retangular */}
-              <div className="h-14 w-44 rounded-lg bg-muted/50 border-2 border-dashed border-muted-foreground/30 flex items-center justify-center">
+              <div className="h-[72px] w-[230px] rounded-lg bg-muted/50 border-2 border-dashed border-muted-foreground/30 flex items-center justify-center">
                 <span className="text-[10px] text-muted-foreground/60 font-medium">LOGO</span>
               </div>
               <div>
