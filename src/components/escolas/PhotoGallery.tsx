@@ -77,11 +77,14 @@ export function PhotoGallery({ photos, isLoading = false }: PhotoGalleryProps) {
 
   return (
     <>
-      {/* Photo count */}
+      {/* Photo count and source */}
       <div className="flex items-center justify-between mb-3">
         <p className="text-sm text-muted-foreground">
           {photos.length} foto{photos.length !== 1 ? "s" : ""} disponíve{photos.length !== 1 ? "is" : "l"}
         </p>
+        <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+          📁 Fonte: UGERF
+        </span>
       </div>
 
       {/* Grid Gallery */}

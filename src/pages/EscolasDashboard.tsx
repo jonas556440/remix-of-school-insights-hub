@@ -157,7 +157,7 @@ export default function EscolasDashboard() {
               value={kpis.total_deficit_aps}
               subtitle={`${kpis.escolas_com_deficit} escolas afetadas`}
               icon={Wifi}
-              tooltip="Quantidade total de Access Points necessários para atingir a meta de 1 AP a cada 2 ambientes escolares."
+              tooltip="Quantidade total de Access Points necessários para atingir a meta de 1 AP a cada 2 ambientes escolares. 📡 Dados em tempo real via controladoras Ruckus e Omada."
             />
             <KPICard
               title="INEC 5 (Excelente)"
@@ -213,9 +213,10 @@ export default function EscolasDashboard() {
             </div>
             
             <div className="bg-card border rounded-2xl p-5">
-              <h3 className="font-semibold text-foreground mb-4 pb-3 border-b">
+              <h3 className="font-semibold text-foreground mb-1 pb-3 border-b">
                 Déficit de Access Points por GRE
               </h3>
+              <p className="text-[10px] text-muted-foreground mb-3 -mt-2">📡 Dados em tempo real via controladoras Ruckus e Omada</p>
               <APsDeficitChart data={chartData.deficitPorGRE} />
             </div>
             
@@ -240,7 +241,7 @@ export default function EscolasDashboard() {
               subtitle={`${((kpis.escolas_com_deficit / kpis.total) * 100).toFixed(0)}% precisam de mais APs`}
               icon={Wifi}
               variant="danger"
-              tooltip="Escolas que possuem menos Access Points instalados do que o mínimo recomendado (1 AP a cada 2 ambientes escolares)."
+              tooltip="Escolas que possuem menos Access Points instalados do que o mínimo recomendado (1 AP a cada 2 ambientes escolares). 📡 Dados em tempo real via controladoras Ruckus e Omada."
             />
             <KPICard
               title="Total Déficit APs"
@@ -248,7 +249,7 @@ export default function EscolasDashboard() {
               subtitle={`${kpis.total_aps_atual.toLocaleString('pt-BR')} instalados de ${kpis.total_aps_necessarios.toLocaleString('pt-BR')} necessários`}
               icon={Wifi}
               variant="primary"
-              tooltip="Quantidade total de Access Points que precisam ser adquiridos e instalados para atender à meta de 1 AP a cada 2 ambientes."
+              tooltip="Quantidade total de Access Points que precisam ser adquiridos e instalados para atender à meta de 1 AP a cada 2 ambientes. 📡 Dados em tempo real via controladoras Ruckus e Omada."
             />
             <KPICard
               title="Velocidade Adequada"
