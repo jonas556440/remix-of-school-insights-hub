@@ -8,6 +8,7 @@ import {
   Wifi,
   Gauge
 } from "lucide-react";
+import logoSeducPi from "@/assets/logo-seduc-pi.png";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { 
@@ -96,10 +97,12 @@ export default function EscolasDashboard() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              {/* Espaço para logo retangular */}
-              <div className="h-[72px] w-[230px] rounded-lg bg-muted/50 border-2 border-dashed border-muted-foreground/30 flex items-center justify-center">
-                <span className="text-[10px] text-muted-foreground/60 font-medium">LOGO</span>
-              </div>
+              {/* Logo SEDUC-PI */}
+              <img 
+                src={logoSeducPi} 
+                alt="Secretaria da Educação - SEDUC | Governo do Piauí" 
+                className="h-16 w-auto object-contain"
+              />
               <div>
                 <h1 className="text-xl font-bold text-foreground">Escolas 2026</h1>
                 <p className="text-xs text-muted-foreground">SEDUC-PI • Conectividade Educacional</p>
