@@ -85,7 +85,7 @@ export function PhotoGallery({ photos, isLoading = false }: PhotoGalleryProps) {
       </div>
 
       {/* Grid Gallery */}
-      <ScrollArea className="h-[320px] pr-3">
+      <ScrollArea className="h-[400px] pr-3">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
           {photos.map((photo, index) => (
             <button
