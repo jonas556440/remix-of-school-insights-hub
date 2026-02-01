@@ -1,6 +1,5 @@
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { Icon } from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface MiniMapProps {
   latitude: number;
@@ -8,17 +7,6 @@ interface MiniMapProps {
   schoolName: string;
   municipio: string;
 }
-
-// Custom marker icon
-const customIcon = new Icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
 
 export function MiniMap({ latitude, longitude, schoolName, municipio }: MiniMapProps) {
   // Check if coordinates are valid
@@ -30,28 +18,39 @@ export function MiniMap({ latitude, longitude, schoolName, municipio }: MiniMapP
     );
   }
 
+  // OpenStreetMap embed URL with zoom level 15
+  const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${longitude - 0.005}%2C${latitude - 0.003}%2C${longitude + 0.005}%2C${latitude + 0.003}&layer=mapnik&marker=${latitude}%2C${longitude}`;
+  
+  // Google Maps URL for opening in new tab
+  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+
   return (
-    <div className="h-full w-full rounded-lg overflow-hidden border">
-      <MapContainer
-        center={[latitude, longitude]}
-        zoom={15}
-        scrollWheelZoom={true}
-        style={{ height: '100%', width: '100%' }}
-        className="z-0"
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <Marker position={[latitude, longitude]} icon={customIcon}>
-          <Popup>
-            <div className="text-sm">
-              <p className="font-semibold">{schoolName}</p>
-              <p className="text-muted-foreground">{municipio}, PI</p>
-            </div>
-          </Popup>
-        </Marker>
-      </MapContainer>
+    <div className="h-full w-full rounded-lg overflow-hidden border relative group">
+      <iframe
+        title={`Localização de ${schoolName}`}
+        src={mapUrl}
+        className="w-full h-full border-0"
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+      />
+      
+      {/* Overlay button to open in Google Maps */}
+      <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <Button
+          size="sm"
+          variant="secondary"
+          className="shadow-md text-xs gap-1"
+          onClick={() => window.open(googleMapsUrl, '_blank')}
+        >
+          <ExternalLink className="h-3 w-3" />
+          Abrir mapa
+        </Button>
+      </div>
+      
+      {/* Location label */}
+      <div className="absolute top-2 left-2 bg-background/90 px-2 py-1 rounded text-xs font-medium shadow-sm">
+        📍 {municipio}, PI
+      </div>
     </div>
   );
 }
