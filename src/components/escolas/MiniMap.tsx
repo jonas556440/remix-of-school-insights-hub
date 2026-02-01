@@ -18,8 +18,9 @@ export function MiniMap({ latitude, longitude, schoolName, municipio }: MiniMapP
     );
   }
 
-  // OpenStreetMap embed URL with zoom level 15
-  const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${longitude - 0.005}%2C${latitude - 0.003}%2C${longitude + 0.005}%2C${latitude + 0.003}&layer=mapnik&marker=${latitude}%2C${longitude}`;
+  // OpenStreetMap embed URL with larger bbox for more context
+  const bboxSize = 0.015; // Increased for better visibility
+  const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${longitude - bboxSize}%2C${latitude - bboxSize * 0.6}%2C${longitude + bboxSize}%2C${latitude + bboxSize * 0.6}&layer=mapnik&marker=${latitude}%2C${longitude}`;
   
   // Google Maps URL for opening in new tab
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
