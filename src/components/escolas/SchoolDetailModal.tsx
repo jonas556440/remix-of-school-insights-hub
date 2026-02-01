@@ -215,9 +215,14 @@ export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalPr
             
             {/* Seção de Access Points / Wi-Fi */}
             <div className="p-4 border rounded-lg space-y-3">
-              <div className="flex items-center gap-2 mb-2">
-                <Radio className="h-5 w-5 text-purple-500" />
-                <h4 className="font-semibold">Cobertura Wi-Fi (Access Points)</h4>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Radio className="h-5 w-5 text-purple-500" />
+                  <h4 className="font-semibold">Cobertura Wi-Fi (Access Points)</h4>
+                </div>
+                <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                  📡 Tempo real: Ruckus/Omada
+                </span>
               </div>
               <div className="grid grid-cols-3 gap-3 text-sm">
                 <div className="p-3 bg-muted/50 rounded-lg text-center">
