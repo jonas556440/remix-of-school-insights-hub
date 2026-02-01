@@ -46,13 +46,74 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
   const [showFilters, setShowFilters] = useState(false);
   const { toast } = useToast();
 
-  // Opções estáticas para autocomplete (todas as opções disponíveis)
-  const allMunicipioOptions = useMemo(() => 
-    [...new Set(data.map(e => e.municipio))].sort(), [data]);
-  const allEscolaOptions = useMemo(() => 
-    data.map(e => e.escola), [data]);
-  const allGreOptions = useMemo(() => 
-    [...new Set(data.map(e => e.gre))].sort(), [data]);
+  // Opções cascateadas: cada dropdown mostra apenas opções existentes
+  // considerando os OUTROS filtros já aplicados (exclui o filtro do próprio campo).
+  const normalize = useCallback((s: string) => {
+    return (s ?? "")
+      .toLowerCase()
+      .normalize("NFD")
+      // remove acentos
+      .replace(/\p{Diacritic}/gu, "");
+  }, []);
+
+  const sortGre = useCallback((a: string, b: string) => {
+    const na = Number((a.match(/^(\d+)ª\s*GRE/)?.[1] ?? "999"));
+    const nb = Number((b.match(/^(\d+)ª\s*GRE/)?.[1] ?? "999"));
+    if (na !== nb) return na - nb;
+    return a.localeCompare(b, "pt-BR");
+  }, []);
+
+  const baseDataForOptions = useCallback(
+    (excludeId: string) => {
+      return data.filter((escola) => {
+        return columnFilters.every((filter) => {
+          if (filter.id === excludeId) return true;
+
+          const raw = String(filter.value ?? "").trim();
+          if (!raw) return true;
+          const v = normalize(raw);
+
+          if (filter.id === "municipio" || filter.id === "escola" || filter.id === "gre") {
+            const cellValue = String((escola as any)[filter.id] ?? "");
+            return normalize(cellValue).includes(v);
+          }
+
+          if (filter.id === "inec_nivel") {
+            const nivel = escola.inec_nivel;
+            if (raw === "bom") return nivel >= 4;
+            if (raw === "medio") return nivel === 3;
+            if (raw === "critico") return nivel <= 2;
+            return true;
+          }
+
+          if (filter.id === "deficit_aps") {
+            const deficit = escola.deficit_aps;
+            if (raw === "com_deficit") return deficit > 0;
+            if (raw === "sem_deficit") return deficit === 0;
+            return true;
+          }
+
+          return true;
+        });
+      });
+    },
+    [data, columnFilters, normalize]
+  );
+
+  const municipioOptions = useMemo(() => {
+    const filtered = baseDataForOptions("municipio");
+    return [...new Set(filtered.map((e) => e.municipio))].sort((a, b) => a.localeCompare(b, "pt-BR"));
+  }, [baseDataForOptions]);
+
+  const escolaOptions = useMemo(() => {
+    const filtered = baseDataForOptions("escola");
+    return [...new Set(filtered.map((e) => e.escola))].sort((a, b) => a.localeCompare(b, "pt-BR"));
+  }, [baseDataForOptions]);
+
+  const greOptions = useMemo(() => {
+    const filtered = baseDataForOptions("gre");
+    return [...new Set(filtered.map((e) => e.gre))].sort(sortGre);
+  }, [baseDataForOptions, sortGre]);
 
   const columns = useMemo<ColumnDef<Escola>[]>(() => [
     {
@@ -373,7 +434,7 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
               onChange={(value) =>
                 table.getColumn("gre")?.setFilterValue(value)
               }
-              options={allGreOptions}
+              options={greOptions}
             />
           </div>
           
@@ -430,7 +491,7 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
               onChange={(value) =>
                 table.getColumn("municipio")?.setFilterValue(value)
               }
-              options={allMunicipioOptions}
+              options={municipioOptions}
             />
           </div>
           
@@ -444,7 +505,7 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
               onChange={(value) =>
                 table.getColumn("escola")?.setFilterValue(value)
               }
-              options={allEscolaOptions}
+              options={escolaOptions}
             />
           </div>
         </div>
