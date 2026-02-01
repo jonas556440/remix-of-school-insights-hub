@@ -293,7 +293,7 @@ export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalPr
           </TabsContent>
           
           {/* Tab Fotos */}
-          <TabsContent value="fotos" className="mt-4 min-h-[450px]">
+          <TabsContent value="fotos" className="mt-4">
             <PhotoGallery photos={photos} isLoading={photosLoading} />
           </TabsContent>
         </Tabs>
