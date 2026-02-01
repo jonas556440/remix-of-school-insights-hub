@@ -46,56 +46,13 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
   const [showFilters, setShowFilters] = useState(false);
   const { toast } = useToast();
 
-  // Dados filtrados para opções cascateadas (exclui o próprio filtro da coluna)
-  const getFilteredDataExcluding = useCallback((excludeColumn: string) => {
-    return data.filter(escola => {
-      return columnFilters.every(filter => {
-        if (filter.id === excludeColumn) return true; // Ignora o filtro da coluna excluída
-        
-        const value = filter.value as string;
-        if (!value || value === 'all') return true;
-        
-        // Filtros de texto (municipio, escola, gre)
-        if (filter.id === 'municipio' || filter.id === 'escola' || filter.id === 'gre') {
-          const cellValue = escola[filter.id as keyof typeof escola] as string;
-          return cellValue?.toLowerCase().includes(value.toLowerCase());
-        }
-        
-        // Filtro INEC
-        if (filter.id === 'inec_nivel') {
-          const nivel = escola.inec_nivel;
-          if (value === 'bom') return nivel >= 4;
-          if (value === 'medio') return nivel === 3;
-          if (value === 'critico') return nivel <= 2;
-        }
-        
-        // Filtro déficit
-        if (filter.id === 'deficit_aps') {
-          const deficit = escola.deficit_aps;
-          if (value === 'com_deficit') return deficit > 0;
-          if (value === 'sem_deficit') return deficit === 0;
-        }
-        
-        return true;
-      });
-    });
-  }, [data, columnFilters]);
-
-  // Opções para autocomplete - cascateadas com base nos outros filtros
-  const municipioOptions = useMemo(() => {
-    const filtered = getFilteredDataExcluding('municipio');
-    return [...new Set(filtered.map(e => e.municipio))].sort();
-  }, [getFilteredDataExcluding]);
-  
-  const escolaOptions = useMemo(() => {
-    const filtered = getFilteredDataExcluding('escola');
-    return filtered.map(e => e.escola).slice(0, 100);
-  }, [getFilteredDataExcluding]);
-  
-  const greOptions = useMemo(() => {
-    const filtered = getFilteredDataExcluding('gre');
-    return [...new Set(filtered.map(e => e.gre))].sort();
-  }, [getFilteredDataExcluding]);
+  // Opções estáticas para autocomplete (todas as opções disponíveis)
+  const allMunicipioOptions = useMemo(() => 
+    [...new Set(data.map(e => e.municipio))].sort(), [data]);
+  const allEscolaOptions = useMemo(() => 
+    data.map(e => e.escola), [data]);
+  const allGreOptions = useMemo(() => 
+    [...new Set(data.map(e => e.gre))].sort(), [data]);
 
   const columns = useMemo<ColumnDef<Escola>[]>(() => [
     {
@@ -416,7 +373,7 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
               onChange={(value) =>
                 table.getColumn("gre")?.setFilterValue(value)
               }
-              options={greOptions}
+              options={allGreOptions}
             />
           </div>
           
@@ -473,7 +430,7 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
               onChange={(value) =>
                 table.getColumn("municipio")?.setFilterValue(value)
               }
-              options={municipioOptions}
+              options={allMunicipioOptions}
             />
           </div>
           
@@ -487,7 +444,7 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
               onChange={(value) =>
                 table.getColumn("escola")?.setFilterValue(value)
               }
-              options={escolaOptions}
+              options={allEscolaOptions}
             />
           </div>
         </div>
