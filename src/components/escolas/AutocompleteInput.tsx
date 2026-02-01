@@ -21,12 +21,14 @@ export function AutocompleteInput({
   const [inputValue, setInputValue] = useState(value);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const MAX_SUGGESTIONS = 30;
+
   // Filtrar opções baseado no input
   const filteredOptions = inputValue
     ? options.filter((opt) =>
         opt.toLowerCase().includes(inputValue.toLowerCase())
-      ).slice(0, 8)
-    : options.slice(0, 8);
+      ).slice(0, MAX_SUGGESTIONS)
+    : options.slice(0, MAX_SUGGESTIONS);
 
   // Sync with external value
   useEffect(() => {
