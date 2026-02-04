@@ -111,7 +111,12 @@ export default function EscolasDashboard() {
             
             <div className="flex items-center gap-2">
               <ThemeToggle />
-              <Button variant="outline" size="sm" className="gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="gap-2"
+                onClick={() => window.location.href = "/"}
+              >
                 <ArrowLeft className="h-4 w-4" />
                 Voltar
               </Button>
