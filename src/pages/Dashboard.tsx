@@ -114,11 +114,11 @@ export default function Dashboard() {
         
         {/* Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {/* Card: Entidades (Escolas) */}
+          {/* Card: Escolas Estaduais */}
           <DashboardCard
-            title="Entidades"
+            title="Escolas Estaduais"
             value={totalEscolas}
-            subtitle="Escolas estaduais cadastradas"
+            subtitle="entidades"
             icon={School}
             color="blue"
             onClick={() => navigate("/escolas")}
