@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
-import { MapPin, Building2, Wifi, Zap, Globe, FileText, Camera, Users, Radio, Gauge, Wrench } from "lucide-react";
+import { MapPin, Building2, Wifi, Zap, Globe, FileText, Camera, Users, Radio, Gauge, Wrench, Phone, Mail, GraduationCap, Clock } from "lucide-react";
 import type { Escola } from "@/data/schoolsData";
 import { INECBadge } from "./INECBadge";
 import { PhotoGallery } from "./PhotoGallery";
@@ -114,20 +114,50 @@ export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalPr
           
           {/* Tab Geral */}
           <TabsContent value="geral" className="mt-4 space-y-4 min-h-[450px]">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Situação e Localização */}
+            <div className="flex flex-wrap gap-2 mb-2">
+              <Badge variant={escola.situacao?.includes('ATIVIDADE') ? 'default' : 'destructive'}>
+                {escola.situacao || 'EM ATIVIDADE'}
+              </Badge>
+              <Badge variant="outline">
+                📍 {escola.localizacao || 'Urbana'}
+              </Badge>
+              {escola.modalidades && escola.modalidades.length > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {escola.modalidades.length} modalidade{escola.modalidades.length > 1 ? 's' : ''}
+                </Badge>
+              )}
+            </div>
+            
+            {/* Endereço e Contatos */}
+            {escola.endereco && (
               <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
                 <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-muted-foreground">Endereço</p>
+                  <p className="font-semibold">{escola.endereco}</p>
+                  <p className="text-sm text-muted-foreground">{escola.municipio}, {escola.uf}</p>
+                </div>
+              </div>
+            )}
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
+                <Phone className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Município</p>
-                  <p className="font-semibold">{escola.municipio}, {escola.uf}</p>
+                  <p className="text-sm font-medium text-muted-foreground">Telefone</p>
+                  <p className="font-semibold">{escola.telefone || '-'}</p>
+                  {escola.telefone2 && (
+                    <p className="text-sm text-muted-foreground">{escola.telefone2}</p>
+                  )}
                 </div>
               </div>
               
               <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
-                <Building2 className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <Mail className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">GRE</p>
-                  <p className="font-semibold">{escola.gre}</p>
+                  <p className="text-sm font-medium text-muted-foreground">E-mail</p>
+                  <p className="font-semibold text-sm break-all">{escola.email || '-'}</p>
                 </div>
               </div>
             </div>
@@ -136,19 +166,69 @@ export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalPr
               <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
                 <Building2 className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Código Município</p>
-                  <p className="font-semibold font-mono">{escola.cod_municipio}</p>
+                  <p className="text-sm font-medium text-muted-foreground">GRE</p>
+                  <p className="font-semibold">{escola.gre}</p>
                 </div>
               </div>
               
               <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
-                <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <Building2 className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Matrículas (maior turno)</p>
-                  <p className="font-semibold">{escola.matriculas_maior_turno} alunos</p>
+                  <p className="text-sm font-medium text-muted-foreground">Código Município</p>
+                  <p className="font-semibold font-mono">{escola.cod_municipio}</p>
                 </div>
               </div>
             </div>
+            
+            {/* Alunos por Turno */}
+            <div className="p-4 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-2 mb-3">
+                <Users className="h-5 w-5 text-muted-foreground" />
+                <p className="font-medium">Alunos por Turno</p>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {escola.alunos_por_turno && escola.alunos_por_turno.length > 0 ? (
+                  escola.alunos_por_turno.map((turno, idx) => (
+                    <div key={idx} className="p-3 bg-background rounded-lg text-center border">
+                      <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {turno.turno}
+                      </p>
+                      <p className="font-bold text-lg">{turno.total}</p>
+                      <p className="text-xs text-muted-foreground">alunos</p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="col-span-4 text-center text-sm text-muted-foreground py-2">
+                    <p>Matrículas (maior turno): <strong>{escola.matriculas_maior_turno}</strong> alunos</p>
+                  </div>
+                )}
+              </div>
+              {escola.alunos_por_turno && escola.alunos_por_turno.length > 0 && (
+                <div className="mt-2 text-center">
+                  <p className="text-xs text-muted-foreground">
+                    Total: <strong>{escola.alunos_por_turno.reduce((sum, t) => sum + t.total, 0)}</strong> alunos
+                  </p>
+                </div>
+              )}
+            </div>
+            
+            {/* Modalidades de Ensino */}
+            {escola.modalidades && escola.modalidades.length > 0 && (
+              <div className="p-4 bg-muted/50 rounded-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <GraduationCap className="h-5 w-5 text-muted-foreground" />
+                  <p className="font-medium">Modalidades de Ensino</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {escola.modalidades.map((mod, idx) => (
+                    <Badge key={idx} variant="secondary" className="text-xs">
+                      {mod.modalidade}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
             
             <div className="p-4 bg-muted/50 rounded-lg">
               <p className="text-sm font-medium text-muted-foreground mb-2">Diligência</p>

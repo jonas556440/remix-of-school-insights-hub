@@ -274,6 +274,96 @@ export default function EscolasDashboard() {
           </div>
         </section>
         
+        {/* KPIs de Localização e Situação */}
+        <section>
+          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            🏫 Perfil das Escolas
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <KPICard
+              title="Escolas Urbanas"
+              value={kpis.escolas_urbanas}
+              subtitle={`${((kpis.escolas_urbanas / kpis.total) * 100).toFixed(0)}% do total`}
+              icon={School}
+              tooltip="Escolas localizadas em áreas urbanas dos municípios."
+            />
+            <KPICard
+              title="Escolas Rurais"
+              value={kpis.escolas_rurais}
+              subtitle={`${((kpis.escolas_rurais / kpis.total) * 100).toFixed(0)}% do total`}
+              icon={School}
+              tooltip="Escolas localizadas em áreas rurais dos municípios."
+            />
+            <KPICard
+              title="Em Atividade"
+              value={kpis.escolas_ativas}
+              subtitle="funcionando normalmente"
+              icon={School}
+              variant="success"
+              tooltip="Escolas com situação de funcionamento 'Em Atividade'."
+            />
+            <KPICard
+              title="Total de Alunos"
+              value={kpis.total_alunos.toLocaleString('pt-BR')}
+              subtitle="matriculados"
+              icon={GraduationCap}
+              variant="primary"
+              tooltip="Soma de todos os alunos matriculados em todos os turnos das escolas estaduais."
+            />
+            <KPICard
+              title="Ensino Médio"
+              value={kpis.modalidade_medio}
+              subtitle="escolas"
+              icon={GraduationCap}
+              tooltip="Escolas que oferecem Ensino Médio regular ou integral."
+            />
+            <KPICard
+              title="Ensino Integral"
+              value={kpis.modalidade_integral}
+              subtitle="escolas"
+              icon={GraduationCap}
+              tooltip="Escolas que oferecem modalidade de ensino em tempo integral."
+            />
+          </div>
+        </section>
+        
+        {/* KPIs de Alunos por Turno */}
+        <section>
+          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            📚 Distribuição de Alunos por Turno
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <KPICard
+              title="Turno Manhã"
+              value={kpis.alunos_manha.toLocaleString('pt-BR')}
+              subtitle="alunos"
+              icon={GraduationCap}
+              tooltip="Total de alunos matriculados no turno da manhã."
+            />
+            <KPICard
+              title="Turno Tarde"
+              value={kpis.alunos_tarde.toLocaleString('pt-BR')}
+              subtitle="alunos"
+              icon={GraduationCap}
+              tooltip="Total de alunos matriculados no turno da tarde."
+            />
+            <KPICard
+              title="Turno Noite"
+              value={kpis.alunos_noite.toLocaleString('pt-BR')}
+              subtitle="alunos"
+              icon={GraduationCap}
+              tooltip="Total de alunos matriculados no turno da noite."
+            />
+            <KPICard
+              title="Integral"
+              value={kpis.alunos_integral.toLocaleString('pt-BR')}
+              subtitle="alunos"
+              icon={GraduationCap}
+              tooltip="Total de alunos matriculados em período integral."
+            />
+          </div>
+        </section>
+        
         {/* Executive Summary */}
         <section>
           <ExecutiveSummary kpis={kpis} />
