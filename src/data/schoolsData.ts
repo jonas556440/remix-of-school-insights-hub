@@ -22,6 +22,17 @@ export interface InfrastructureData {
   observacoes: string;
 }
 
+// Interface para alunos por turno (da API SEDUC)
+export interface AlunoPorTurno {
+  turno: string;
+  total: number;
+}
+
+// Interface para modalidades de ensino (da API SEDUC)
+export interface ModalidadeEnsino {
+  modalidade: string;
+}
+
 export interface Escola {
   cod_inep: string;
   escola: string;
@@ -49,6 +60,16 @@ export interface Escola {
   longitude: number;
   // Dados de infraestrutura
   infraestrutura?: InfrastructureData;
+  // Novos campos da API SEDUC
+  id_entidade?: string;           // ID interno da entidade
+  endereco?: string;              // Endereço completo
+  telefone?: string;              // Telefone principal
+  telefone2?: string;             // Telefone secundário
+  email?: string;                 // E-mail da escola
+  localizacao?: 'Urbana' | 'Rural';  // Localização urbana ou rural
+  situacao?: string;              // Situação de funcionamento (EM ATIVIDADE, PARALISADA, etc.)
+  modalidades?: ModalidadeEnsino[]; // Modalidades de ensino oferecidas
+  alunos_por_turno?: AlunoPorTurno[]; // Alunos matriculados por turno
 }
 
 export interface KPIs {
@@ -73,6 +94,22 @@ export interface KPIs {
   escolas_com_deficit: number;
   escolas_velocidade_ok: number;
   escolas_velocidade_baixa: number;
+  // Novos KPIs
+  escolas_urbanas: number;
+  escolas_rurais: number;
+  escolas_ativas: number;
+  escolas_paralisadas: number;
+  total_alunos: number;
+  alunos_manha: number;
+  alunos_tarde: number;
+  alunos_noite: number;
+  alunos_integral: number;
+  // KPIs por modalidade
+  modalidade_medio: number;
+  modalidade_fundamental: number;
+  modalidade_eja: number;
+  modalidade_integral: number;
+  modalidade_tecnico: number;
 }
 
 export interface CardPredefinido {
@@ -438,6 +475,38 @@ function gerarEscolas(): Escola[] {
         velocidade_contratada = Math.floor(velocidade_minima * Math.random() * 0.5);
       }
       
+      // Gerar dados mock para novos campos da API
+      const localizacao: 'Urbana' | 'Rural' = Math.random() > 0.25 ? 'Urbana' : 'Rural';
+      const situacao = Math.random() > 0.02 ? 'EM ATIVIDADE' : 'PARALISADA';
+      
+      // Gerar alunos por turno baseado no total de matrículas
+      const alunosPorTurno: AlunoPorTurno[] = [];
+      const distribuirAlunos = matriculas_maior_turno * (1 + Math.random() * 0.5);
+      const turnos = ['MANHÃ', 'TARDE', 'NOITE', 'INTEGRAL'];
+      const pesos = [0.35, 0.3, 0.15, 0.2];
+      turnos.forEach((turno, idx) => {
+        const total = Math.floor(distribuirAlunos * pesos[idx] * (0.5 + Math.random()));
+        if (total > 0) {
+          alunosPorTurno.push({ turno, total });
+        }
+      });
+      
+      // Gerar modalidades de ensino
+      const modalidadesPossiveis = [
+        'EDUCAÇÃO REGULAR - ENSINO MÉDIO',
+        'EDUCAÇÃO REGULAR - ENSINO FUNDAMENTAL',
+        'EDUCAÇÃO REGULAR - ENSINO MÉDIO INTEGRAL',
+        'ENSINO INTEGRADO INTEGRAL - NOVAS 2024',
+        'EJA PRESENCIAL - ENSINO MÉDIO',
+        'EJA PRESENCIAL - ENSINO FUNDAMENTAL',
+        'OUTRAS MODALIDADES (AEE, COMP ELET, + EDUC)',
+      ];
+      const numModalidades = Math.floor(Math.random() * 3) + 1;
+      const modalidades: ModalidadeEnsino[] = modalidadesPossiveis
+        .sort(() => Math.random() - 0.5)
+        .slice(0, numModalidades)
+        .map(m => ({ modalidade: m }));
+      
       const escola: Escola = {
         cod_inep: gerarCodINEP(escolaIndex),
         escola: gerarNomeEscola('Estadual'),
@@ -464,6 +533,16 @@ function gerarEscolas(): Escola[] {
         longitude: gerarLongitude(municipio),
         // Dados de infraestrutura (mock)
         infraestrutura: gerarInfraestrutura(compartimentos, inec.nivel),
+        // Novos campos da API SEDUC (mock)
+        id_entidade: (600 + escolaIndex).toString(),
+        endereco: `RUA ${['PRINCIPAL', 'CENTRAL', 'DA PAZ', 'NOVA'][Math.floor(Math.random() * 4)]} ${Math.floor(Math.random() * 1000) + 1}, CENTRO`,
+        telefone: `(86) ${Math.floor(Math.random() * 9000) + 1000}-${Math.floor(Math.random() * 9000) + 1000}`,
+        telefone2: Math.random() > 0.5 ? `(86) 9${Math.floor(Math.random() * 9000) + 1000}-${Math.floor(Math.random() * 9000) + 1000}` : undefined,
+        email: `e${gerarCodINEP(escolaIndex)}@seduc.pi.gov.br`,
+        localizacao,
+        situacao,
+        modalidades,
+        alunos_por_turno: alunosPorTurno,
       };
       
       escolas.push(escola);
@@ -503,6 +582,36 @@ function gerarEscolas(): Escola[] {
       velocidade_contratada = Math.floor(velocidade_minima * Math.random() * 0.5);
     }
     
+    // Gerar dados mock para novos campos da API
+    const localizacao: 'Urbana' | 'Rural' = Math.random() > 0.4 ? 'Urbana' : 'Rural';
+    const situacao = Math.random() > 0.02 ? 'EM ATIVIDADE' : 'PARALISADA';
+    
+    // Gerar alunos por turno
+    const alunosPorTurno: AlunoPorTurno[] = [];
+    const distribuirAlunos = matriculas_maior_turno * (1 + Math.random() * 0.5);
+    const turnos = ['MANHÃ', 'TARDE', 'NOITE', 'INTEGRAL'];
+    const pesos = [0.35, 0.3, 0.15, 0.2];
+    turnos.forEach((turno, idx) => {
+      const total = Math.floor(distribuirAlunos * pesos[idx] * (0.5 + Math.random()));
+      if (total > 0) {
+        alunosPorTurno.push({ turno, total });
+      }
+    });
+    
+    // Gerar modalidades de ensino
+    const modalidadesPossiveis = [
+      'EDUCAÇÃO REGULAR - ENSINO MÉDIO',
+      'EDUCAÇÃO REGULAR - ENSINO FUNDAMENTAL',
+      'EDUCAÇÃO REGULAR - ENSINO MÉDIO INTEGRAL',
+      'EJA PRESENCIAL - ENSINO MÉDIO',
+      'OUTRAS MODALIDADES (AEE, COMP ELET, + EDUC)',
+    ];
+    const numModalidades = Math.floor(Math.random() * 2) + 1;
+    const modalidades: ModalidadeEnsino[] = modalidadesPossiveis
+      .sort(() => Math.random() - 0.5)
+      .slice(0, numModalidades)
+      .map(m => ({ modalidade: m }));
+    
     const escola: Escola = {
       cod_inep: gerarCodINEP(escolaIndex),
       escola: gerarNomeEscola('Estadual'),
@@ -527,6 +636,16 @@ function gerarEscolas(): Escola[] {
       latitude: gerarLatitude(municipio),
       longitude: gerarLongitude(municipio),
       infraestrutura: gerarInfraestrutura(compartimentos, inec.nivel),
+      // Novos campos da API SEDUC (mock)
+      id_entidade: (600 + escolaIndex).toString(),
+      endereco: `RUA ${['PRINCIPAL', 'CENTRAL', 'DA PAZ', 'NOVA'][Math.floor(Math.random() * 4)]} ${Math.floor(Math.random() * 1000) + 1}, CENTRO`,
+      telefone: `(86) ${Math.floor(Math.random() * 9000) + 1000}-${Math.floor(Math.random() * 9000) + 1000}`,
+      telefone2: Math.random() > 0.5 ? `(86) 9${Math.floor(Math.random() * 9000) + 1000}-${Math.floor(Math.random() * 9000) + 1000}` : undefined,
+      email: `e${gerarCodINEP(escolaIndex)}@seduc.pi.gov.br`,
+      localizacao,
+      situacao,
+      modalidades,
+      alunos_por_turno: alunosPorTurno,
     };
     
     escolas.push(escola);
@@ -560,6 +679,28 @@ export function calcularKPIs(escolas: Escola[]): KPIs {
   const municipiosUnicos = new Set(escolas.map(e => e.municipio));
   const gresUnicas = new Set(escolas.map(e => e.gre));
   
+  // Calcular totais de alunos por turno
+  let alunos_manha = 0;
+  let alunos_tarde = 0;
+  let alunos_noite = 0;
+  let alunos_integral = 0;
+  
+  escolas.forEach(e => {
+    if (e.alunos_por_turno) {
+      e.alunos_por_turno.forEach(t => {
+        const turno = t.turno.toUpperCase();
+        if (turno.includes('MANHÃ') || turno.includes('MANHA')) alunos_manha += t.total;
+        else if (turno.includes('TARDE')) alunos_tarde += t.total;
+        else if (turno.includes('NOITE')) alunos_noite += t.total;
+        else if (turno.includes('INTEGRAL')) alunos_integral += t.total;
+      });
+    }
+  });
+  
+  // Calcular modalidades
+  const hasModalidade = (e: Escola, keyword: string) => 
+    e.modalidades?.some(m => m.modalidade.toUpperCase().includes(keyword)) ?? false;
+  
   return {
     total: escolas.length,
     inec_5: escolas.filter(e => e.inec_nivel === 5).length,
@@ -582,6 +723,27 @@ export function calcularKPIs(escolas: Escola[]): KPIs {
     escolas_com_deficit: escolas.filter(e => e.deficit_aps > 0).length,
     escolas_velocidade_ok: escolas.filter(e => e.velocidade_contratada >= e.velocidade_minima).length,
     escolas_velocidade_baixa: escolas.filter(e => e.velocidade_contratada < e.velocidade_minima).length,
+    // Novos KPIs
+    escolas_urbanas: escolas.filter(e => e.localizacao === 'Urbana').length,
+    escolas_rurais: escolas.filter(e => e.localizacao === 'Rural').length,
+    escolas_ativas: escolas.filter(e => e.situacao?.toUpperCase().includes('ATIVIDADE')).length,
+    escolas_paralisadas: escolas.filter(e => e.situacao?.toUpperCase().includes('PARALISADA')).length,
+    total_alunos: escolas.reduce((sum, e) => {
+      if (e.alunos_por_turno) {
+        return sum + e.alunos_por_turno.reduce((s, t) => s + t.total, 0);
+      }
+      return sum + e.matriculas_maior_turno;
+    }, 0),
+    alunos_manha,
+    alunos_tarde,
+    alunos_noite,
+    alunos_integral,
+    // KPIs por modalidade
+    modalidade_medio: escolas.filter(e => hasModalidade(e, 'MÉDIO') || hasModalidade(e, 'MEDIO')).length,
+    modalidade_fundamental: escolas.filter(e => hasModalidade(e, 'FUNDAMENTAL')).length,
+    modalidade_eja: escolas.filter(e => hasModalidade(e, 'EJA')).length,
+    modalidade_integral: escolas.filter(e => hasModalidade(e, 'INTEGRAL')).length,
+    modalidade_tecnico: escolas.filter(e => hasModalidade(e, 'INTEGRADO') || hasModalidade(e, 'TEC')).length,
   };
 }
 
