@@ -116,15 +116,15 @@ export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalPr
           <TabsContent value="geral" className="mt-4 space-y-4 min-h-[450px]">
             {/* Situação e Localização */}
             <div className="flex flex-wrap gap-2 mb-2">
-              <Badge variant={escola.situacao?.includes('ATIVIDADE') ? 'default' : 'destructive'}>
-                {escola.situacao || 'EM ATIVIDADE'}
+              <Badge variant={escola.nomeSituacaoFuncionamento?.includes('ATIVIDADE') ? 'default' : 'destructive'}>
+                {escola.nomeSituacaoFuncionamento || 'EM ATIVIDADE'}
               </Badge>
               <Badge variant="outline">
                 📍 {escola.localizacao || 'Urbana'}
               </Badge>
-              {escola.modalidades && escola.modalidades.length > 0 && (
+              {escola.modaLidadesDeEnsino && escola.modaLidadesDeEnsino.length > 0 && (
                 <Badge variant="secondary" className="text-xs">
-                  {escola.modalidades.length} modalidade{escola.modalidades.length > 1 ? 's' : ''}
+                  {escola.modaLidadesDeEnsino.length} modalidade{escola.modaLidadesDeEnsino.length > 1 ? 's' : ''}
                 </Badge>
               )}
             </div>
@@ -146,9 +146,9 @@ export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalPr
                 <Phone className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Telefone</p>
-                  <p className="font-semibold">{escola.telefone || '-'}</p>
-                  {escola.telefone2 && (
-                    <p className="text-sm text-muted-foreground">{escola.telefone2}</p>
+                  <p className="font-semibold">{escola.fone || '-'}</p>
+                  {escola.fone2 && (
+                    <p className="text-sm text-muted-foreground">{escola.fone2}</p>
                   )}
                 </div>
               </div>
@@ -167,7 +167,7 @@ export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalPr
                 <Building2 className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">GRE</p>
-                  <p className="font-semibold">{escola.gre}</p>
+                  <p className="font-semibold">{escola.GRE}</p>
                 </div>
               </div>
               
@@ -175,7 +175,7 @@ export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalPr
                 <Building2 className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Código Município</p>
-                  <p className="font-semibold font-mono">{escola.cod_municipio}</p>
+                  <p className="font-semibold font-mono">{escola.codINEPMunicipio}</p>
                 </div>
               </div>
             </div>
@@ -187,14 +187,14 @@ export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalPr
                 <p className="font-medium">Alunos por Turno</p>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {escola.alunos_por_turno && escola.alunos_por_turno.length > 0 ? (
-                  escola.alunos_por_turno.map((turno, idx) => (
+                {escola.totalAlunosTurno && escola.totalAlunosTurno.length > 0 ? (
+                  escola.totalAlunosTurno.map((turno, idx) => (
                     <div key={idx} className="p-3 bg-background rounded-lg text-center border">
                       <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
                         <Clock className="h-3 w-3" />
-                        {turno.turno}
+                        {turno.Turno}
                       </p>
-                      <p className="font-bold text-lg">{turno.total}</p>
+                      <p className="font-bold text-lg">{turno.TotalAluno}</p>
                       <p className="text-xs text-muted-foreground">alunos</p>
                     </div>
                   ))
@@ -204,31 +204,33 @@ export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalPr
                   </div>
                 )}
               </div>
-              {escola.alunos_por_turno && escola.alunos_por_turno.length > 0 && (
+              {escola.totalAlunosTurno && escola.totalAlunosTurno.length > 0 && (
                 <div className="mt-2 text-center">
                   <p className="text-xs text-muted-foreground">
-                    Total: <strong>{escola.alunos_por_turno.reduce((sum, t) => sum + t.total, 0)}</strong> alunos
+                    Total: <strong>{escola.totalAlunosTurno.reduce((sum, t) => sum + t.TotalAluno, 0)}</strong> alunos
                   </p>
                 </div>
               )}
             </div>
             
             {/* Modalidades de Ensino */}
-            {escola.modalidades && escola.modalidades.length > 0 && (
+            {escola.modaLidadesDeEnsino && escola.modaLidadesDeEnsino.length > 0 && (
               <div className="p-4 bg-muted/50 rounded-lg">
                 <div className="flex items-center gap-2 mb-3">
                   <GraduationCap className="h-5 w-5 text-muted-foreground" />
                   <p className="font-medium">Modalidades de Ensino</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {escola.modalidades.map((mod, idx) => (
+                  {escola.modaLidadesDeEnsino.map((mod, idx) => (
                     <Badge key={idx} variant="secondary" className="text-xs">
-                      {mod.modalidade}
+                      {mod.ModalidadeEnsino}
                     </Badge>
                   ))}
                 </div>
               </div>
             )}
+            
+            {/* Modalidades de Ensino (duplicado - remover) */}
             
             <div className="p-4 bg-muted/50 rounded-lg">
               <p className="text-sm font-medium text-muted-foreground mb-2">Diligência</p>
