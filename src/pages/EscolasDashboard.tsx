@@ -142,7 +142,7 @@ export default function EscolasDashboard() {
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
             📊 Visão Geral — Rede Estadual do Piauí
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             <KPICard
               title="Escolas Estaduais"
               value={kpis.total}
@@ -167,18 +167,26 @@ export default function EscolasDashboard() {
             <KPICard
               title="INEC 5 (Excelente)"
               value={kpis.inec_5}
-              subtitle={`${((kpis.inec_5 / kpis.total) * 100).toFixed(0)}% das escolas`}
+              subtitle={`Oficial: ${kpis.inec_5} • Calculado: ${kpis.inec_calc_5}`}
               icon={Award}
               variant="success"
-              tooltip="Escolas com nível máximo de conectividade: Wi-Fi adequado (1 AP a cada 2 ambientes) e velocidade de internet ≥ 1 Mbps por aluno."
+              tooltip="INEC Oficial (fonte MEC) vs Calculado (árvore de decisão com dados reais de energia, velocidade e Wi-Fi). A divergência indica escolas cujo nível real difere do oficial."
             />
             <KPICard
               title="Críticas (INEC ≤2)"
               value={kpis.inec_critico}
-              subtitle={`${((kpis.inec_critico / kpis.total) * 100).toFixed(0)}% das escolas`}
+              subtitle={`Oficial: ${kpis.inec_critico} • Calculado: ${kpis.inec_calc_critico}`}
               icon={AlertTriangle}
               variant="danger"
-              tooltip="Escolas em situação crítica: sem internet adequada, déficit de Access Points ou velocidade insuficiente para o número de alunos."
+              tooltip="Escolas em situação crítica. INEC Oficial (MEC) vs Calculado com dados reais. A divergência pode indicar dados desatualizados na base oficial."
+            />
+            <KPICard
+              title="INEC Divergente"
+              value={kpis.inec_divergentes}
+              subtitle={`${((kpis.inec_divergentes / kpis.total) * 100).toFixed(0)}% das escolas`}
+              icon={Gauge}
+              variant="warning"
+              tooltip="Escolas onde o INEC oficial (fonte MEC) difere do INEC calculado pela árvore de decisão com os dados reais de energia, velocidade de internet e Access Points."
             />
           </div>
         </section>
@@ -191,11 +199,18 @@ export default function EscolasDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-card border rounded-2xl p-5">
               <h3 className="font-semibold text-foreground mb-4 pb-3 border-b">
-                Distribuição por Nível INEC
+                Distribuição por Nível INEC <span className="text-xs text-muted-foreground font-normal">(Oficial)</span>
               </h3>
               <INECPieChart data={chartData.inecDistribution} />
             </div>
             
+            <div className="bg-card border rounded-2xl p-5">
+              <h3 className="font-semibold text-foreground mb-4 pb-3 border-b">
+                Distribuição por Nível INEC <span className="text-xs text-muted-foreground font-normal">(Calculado)</span>
+              </h3>
+              <INECPieChart data={chartData.inecCalculadoDistribution} />
+            </div>
+
             <div className="bg-card border rounded-2xl p-5">
               <h3 className="font-semibold text-foreground mb-4 pb-3 border-b">
                 Conectividade por GRE

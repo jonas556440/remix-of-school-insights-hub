@@ -83,6 +83,7 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
             if (raw === "bom") return nivel >= 4;
             if (raw === "medio") return nivel === 3;
             if (raw === "critico") return nivel <= 2;
+            if (raw === "divergente") return escola.inec_divergente;
             return true;
           }
 
@@ -198,18 +199,28 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
           <ArrowUpDown className="ml-2 h-3 w-3" />
         </Button>
       ),
-      cell: ({ row }) => (
-        <INECBadge 
-          nivel={row.getValue("inec_nivel")} 
-          label={row.original.inec}
-        />
-      ),
+      cell: ({ row }) => {
+        const oficial = row.getValue("inec_nivel") as number;
+        const calculado = row.original.inec_nivel_calculado;
+        const divergente = row.original.inec_divergente;
+        return (
+          <div className="flex items-center gap-1">
+            <INECBadge nivel={oficial} label={`${oficial}`} size="sm" showTooltip={true} />
+            {divergente && (
+              <span className="text-[10px] text-warning font-medium" title={`Calculado: Nível ${calculado}`}>
+                →{calculado}
+              </span>
+            )}
+          </div>
+        );
+      },
       filterFn: (row, id, value) => {
         if (value === "all") return true;
         const nivel = row.getValue(id) as number;
         if (value === "bom") return nivel >= 4;
         if (value === "medio") return nivel === 3;
         if (value === "critico") return nivel <= 2;
+        if (value === "divergente") return row.original.inec_divergente;
         return true;
       },
     },
@@ -456,6 +467,7 @@ export function SchoolsTable({ data, onRowClick, globalFilter = "" }: SchoolsTab
                 <SelectItem value="bom">Bom (4-5)</SelectItem>
                 <SelectItem value="medio">Médio (3)</SelectItem>
                 <SelectItem value="critico">Crítico (0-2)</SelectItem>
+                <SelectItem value="divergente">⚠️ Divergente</SelectItem>
               </SelectContent>
             </Select>
           </div>

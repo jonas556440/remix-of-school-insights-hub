@@ -1,3 +1,4 @@
+import { calcularINECReal } from "@/utils/calcularINEC";
 // ============================================================
 // INTERFACE DA API SEDUC-PI (fonte primária)
 // Endpoint: /consultas/infoescolainfraestura
@@ -111,7 +112,9 @@ export interface Escola {
   
   // === Campos de Conectividade (fonte: INEC) ===
   inec: string;
-  inec_nivel: number;
+  inec_nivel: number;          // INEC oficial (fonte INEC/MEC)
+  inec_nivel_calculado: number; // INEC calculado pela árvore de decisão com dados reais
+  inec_divergente: boolean;     // true se oficial ≠ calculado
   compartimentos: number;
   aps_atual: number;
   aps_necessarios: number;
@@ -137,6 +140,7 @@ export interface Escola {
 
 export interface KPIs {
   total: number;
+  // INEC Oficial
   inec_5: number;
   inec_4: number;
   inec_3: number;
@@ -144,6 +148,16 @@ export interface KPIs {
   inec_1: number;
   inec_0: number;
   inec_critico: number;
+  // INEC Calculado
+  inec_calc_5: number;
+  inec_calc_4: number;
+  inec_calc_3: number;
+  inec_calc_2: number;
+  inec_calc_1: number;
+  inec_calc_0: number;
+  inec_calc_critico: number;
+  // Divergência
+  inec_divergentes: number;
   energia_adequada: number;
   internet_adequada: number;
   wifi_adequado: number;
@@ -605,6 +619,8 @@ function gerarEscolas(): Escola[] {
         // Campos de Conectividade (fonte: INEC)
         inec: inec.label,
         inec_nivel: inec.nivel,
+        inec_nivel_calculado: 0, // placeholder, calculado abaixo
+        inec_divergente: false,  // placeholder
         compartimentos,
         aps_atual,
         aps_necessarios,
@@ -627,6 +643,9 @@ function gerarEscolas(): Escola[] {
         dependencia: 'Estadual',
         gre: greCompleta,
       };
+      // Calcular INEC real após construir o objeto
+      escola.inec_nivel_calculado = calcularINECReal(escola);
+      escola.inec_divergente = escola.inec_nivel !== escola.inec_nivel_calculado;
       
       escolas.push(escola);
       escolaIndex++;
@@ -730,6 +749,8 @@ function gerarEscolas(): Escola[] {
       // Campos de Conectividade (fonte: INEC)
       inec: inec.label,
       inec_nivel: inec.nivel,
+      inec_nivel_calculado: 0, // placeholder
+      inec_divergente: false,  // placeholder
       compartimentos,
       aps_atual,
       aps_necessarios,
@@ -752,6 +773,9 @@ function gerarEscolas(): Escola[] {
       dependencia: 'Estadual',
       gre: greCompleta,
     };
+    // Calcular INEC real
+    escola.inec_nivel_calculado = calcularINECReal(escola);
+    escola.inec_divergente = escola.inec_nivel !== escola.inec_nivel_calculado;
     
     escolas.push(escola);
     escolaIndex++;
@@ -815,6 +839,16 @@ export function calcularKPIs(escolas: Escola[]): KPIs {
     inec_1: escolas.filter(e => e.inec_nivel === 1).length,
     inec_0: escolas.filter(e => e.inec_nivel === 0).length,
     inec_critico: escolas.filter(e => e.inec_nivel <= 2).length,
+    // INEC Calculado
+    inec_calc_5: escolas.filter(e => e.inec_nivel_calculado === 5).length,
+    inec_calc_4: escolas.filter(e => e.inec_nivel_calculado === 4).length,
+    inec_calc_3: escolas.filter(e => e.inec_nivel_calculado === 3).length,
+    inec_calc_2: escolas.filter(e => e.inec_nivel_calculado === 2).length,
+    inec_calc_1: escolas.filter(e => e.inec_nivel_calculado === 1).length,
+    inec_calc_0: escolas.filter(e => e.inec_nivel_calculado === 0).length,
+    inec_calc_critico: escolas.filter(e => e.inec_nivel_calculado <= 2).length,
+    // Divergência
+    inec_divergentes: escolas.filter(e => e.inec_divergente).length,
     energia_adequada: escolas.filter(e => e.energia.toLowerCase().includes('adequada') && !e.energia.toLowerCase().includes('inadequada')).length,
     internet_adequada: escolas.filter(e => e.internet.toLowerCase().includes('adequada') && !e.internet.toLowerCase().includes('inadequada')).length,
     wifi_adequado: escolas.filter(e => e.wifi.toLowerCase().includes('adequado') && !e.wifi.toLowerCase().includes('insuficiente')).length,
@@ -921,11 +955,19 @@ export const cardsPredefinidos: CardPredefinido[] = [
     color: 'blue',
     filter: (e) => e.municipio !== 'Teresina',
   },
+  {
+    id: 'divergente',
+    title: 'INEC Divergente',
+    description: 'Escolas onde INEC oficial difere do calculado com dados reais',
+    icon: '⚠️',
+    color: 'amber',
+    filter: (e) => e.inec_divergente,
+  },
 ];
 
 // Função para obter estatísticas para gráficos
 export function getChartData(escolas: Escola[]) {
-  // Distribuição por INEC
+  // Distribuição por INEC Oficial
   const inecDistribution = [
     { name: 'Nível 5', value: escolas.filter(e => e.inec_nivel === 5).length, color: 'hsl(142, 71%, 45%)' },
     { name: 'Nível 4', value: escolas.filter(e => e.inec_nivel === 4).length, color: 'hsl(84, 60%, 45%)' },
@@ -933,6 +975,16 @@ export function getChartData(escolas: Escola[]) {
     { name: 'Nível 2', value: escolas.filter(e => e.inec_nivel === 2).length, color: 'hsl(25, 95%, 53%)' },
     { name: 'Nível 1', value: escolas.filter(e => e.inec_nivel === 1).length, color: 'hsl(0, 84%, 60%)' },
     { name: 'Nível 0', value: escolas.filter(e => e.inec_nivel === 0).length, color: 'hsl(0, 62%, 30%)' },
+  ];
+
+  // Distribuição por INEC Calculado
+  const inecCalculadoDistribution = [
+    { name: 'Nível 5', value: escolas.filter(e => e.inec_nivel_calculado === 5).length, color: 'hsl(142, 71%, 45%)' },
+    { name: 'Nível 4', value: escolas.filter(e => e.inec_nivel_calculado === 4).length, color: 'hsl(84, 60%, 45%)' },
+    { name: 'Nível 3', value: escolas.filter(e => e.inec_nivel_calculado === 3).length, color: 'hsl(48, 96%, 53%)' },
+    { name: 'Nível 2', value: escolas.filter(e => e.inec_nivel_calculado === 2).length, color: 'hsl(25, 95%, 53%)' },
+    { name: 'Nível 1', value: escolas.filter(e => e.inec_nivel_calculado === 1).length, color: 'hsl(0, 84%, 60%)' },
+    { name: 'Nível 0', value: escolas.filter(e => e.inec_nivel_calculado === 0).length, color: 'hsl(0, 62%, 30%)' },
   ];
   
   // Conectividade por GRE (Top 10)
@@ -1026,6 +1078,7 @@ export function getChartData(escolas: Escola[]) {
   
   return {
     inecDistribution,
+    inecCalculadoDistribution,
     conectividadePorGRE,
     topMunicipios,
     infraStatus,
