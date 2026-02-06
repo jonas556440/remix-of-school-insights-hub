@@ -8,6 +8,7 @@ import { MapPin, Building2, Wifi, Zap, Globe, FileText, Camera, Users, Radio, Ga
 import type { Escola } from "@/data/schoolsData";
 import { INECBadge } from "./INECBadge";
 import { PhotoGallery } from "./PhotoGallery";
+import { explicarINECCalculado } from "@/utils/calcularINEC";
 import { MiniMap } from "./MiniMap";
 import { InfrastructureTab } from "./InfrastructureTab";
 import { cn } from "@/lib/utils";
@@ -274,14 +275,28 @@ export function SchoolDetailModal({ escola, open, onClose }: SchoolDetailModalPr
           
           {/* Tab Conectividade */}
           <TabsContent value="conectividade" className="mt-4 space-y-4 min-h-[450px]">
-            {/* INEC Badge com Tooltip explicativo */}
-            <div className="flex items-center justify-center p-6 bg-muted/50 rounded-lg">
-              <div className="text-center">
-                <p className="text-sm font-medium text-muted-foreground mb-2">
-                  Nível INEC <span className="text-xs">(passe o mouse para ver critérios)</span>
-                </p>
-                <INECBadge nivel={escola.inec_nivel} label={escola.inec} size="lg" showTooltip={true} />
+            {/* INEC Badge - Oficial vs Calculado */}
+            <div className="p-6 bg-muted/50 rounded-lg space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center">
+                  <p className="text-xs font-medium text-muted-foreground mb-2">INEC Oficial (MEC)</p>
+                  <INECBadge nivel={escola.inec_nivel} label={escola.inec} size="lg" showTooltip={true} />
+                </div>
+                <div className="text-center">
+                  <p className="text-xs font-medium text-muted-foreground mb-2">INEC Calculado (Dados Reais)</p>
+                  <INECBadge nivel={escola.inec_nivel_calculado} label={`Nível ${escola.inec_nivel_calculado}`} size="lg" showTooltip={true} />
+                </div>
               </div>
+              {escola.inec_divergente && (
+                <div className="flex items-center gap-2 p-3 bg-warning/10 border border-warning/20 rounded-lg text-sm">
+                  <span className="text-warning font-medium">
+                    ⚠️ Divergência: Oficial ({escola.inec_nivel}) ≠ Calculado ({escola.inec_nivel_calculado})
+                  </span>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground text-center">
+                📐 {explicarINECCalculado(escola)}
+              </p>
             </div>
             
             {/* Seção de Velocidade de Internet */}
