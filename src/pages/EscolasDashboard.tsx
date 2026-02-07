@@ -31,12 +31,14 @@ import { MunicipiosChart } from "@/components/escolas/charts/MunicipiosChart";
 import { InfraDonutChart } from "@/components/escolas/charts/InfraDonutChart";
 import { APsDeficitChart } from "@/components/escolas/charts/APsDeficitChart";
 import { VelocidadeChart } from "@/components/escolas/charts/VelocidadeChart";
+import { INEC_DEFAULT_SOURCE, getINECLabel, type INECSource } from "@/config/inecSource";
 
 export default function EscolasDashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState<CardPredefinido | null>(null);
   const [selectedEscola, setSelectedEscola] = useState<Escola | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [inecSource, setInecSource] = useState<INECSource>(INEC_DEFAULT_SOURCE);
   
   // Dados
   const allEscolas = useMemo(() => getEscolas(), []);
@@ -198,17 +200,30 @@ export default function EscolasDashboard() {
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-card border rounded-2xl p-5">
-              <h3 className="font-semibold text-foreground mb-4 pb-3 border-b">
-                Distribuição por Nível INEC <span className="text-xs text-muted-foreground font-normal">(Oficial)</span>
-              </h3>
-              <INECPieChart data={chartData.inecDistribution} />
-            </div>
-            
-            <div className="bg-card border rounded-2xl p-5">
-              <h3 className="font-semibold text-foreground mb-4 pb-3 border-b">
-                Distribuição por Nível INEC <span className="text-xs text-muted-foreground font-normal">(Calculado)</span>
-              </h3>
-              <INECPieChart data={chartData.inecCalculadoDistribution} />
+              <div className="flex items-center justify-between mb-4 pb-3 border-b">
+                <h3 className="font-semibold text-foreground">
+                  Distribuição por Nível INEC <span className="text-xs text-muted-foreground font-normal">({getINECLabel(inecSource)})</span>
+                </h3>
+                <div className="flex gap-1 bg-muted rounded-lg p-0.5">
+                  <button
+                    onClick={() => setInecSource('oficial')}
+                    className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                      inecSource === 'oficial' ? 'bg-background text-foreground shadow-sm font-medium' : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    Oficial
+                  </button>
+                  <button
+                    onClick={() => setInecSource('calculado')}
+                    className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                      inecSource === 'calculado' ? 'bg-background text-foreground shadow-sm font-medium' : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    Calculado
+                  </button>
+                </div>
+              </div>
+              <INECPieChart data={inecSource === 'oficial' ? chartData.inecDistribution : chartData.inecCalculadoDistribution} />
             </div>
 
             <div className="bg-card border rounded-2xl p-5">
