@@ -135,8 +135,10 @@ export function INECBadge({ nivel, label, size = 'sm', showLabel = true, showToo
           />
         </TooltipTrigger>
         <TooltipContent 
-          side="right" 
-          className="max-w-sm p-0 bg-popover border shadow-lg"
+          side="top" 
+          align="center"
+          collisionPadding={16}
+          className="max-w-sm p-0 bg-popover border shadow-lg z-[9999]"
           sideOffset={8}
         >
           <div className="p-3 space-y-2">
